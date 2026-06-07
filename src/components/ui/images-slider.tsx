@@ -132,8 +132,8 @@ export const ImagesSlider = ({
         background: "#000",
       }}
     >
-      {(areImagesLoaded || loadFailed) && children}
-      {(areImagesLoaded || loadFailed) && overlay && (
+      {children}
+      {overlay && (
         <div
           className={cn("absolute inset-0 bg-black/60 z-40", overlayClassName)}
         />
