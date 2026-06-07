@@ -23,6 +23,7 @@ export const ImagesSlider = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loadedImages, setLoadedImages] = useState<string[]>([]);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) =>
@@ -56,7 +57,11 @@ export const ImagesSlider = ({
         setLoadedImages(loadedImages as string[]);
         setLoading(false);
       })
-      .catch((error) => console.error("Failed to load images", error));
+      .catch((error) => {
+        console.error("Failed to load images", error);
+        setLoadFailed(true);
+        setLoading(false);
+      });
   };
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -127,8 +132,8 @@ export const ImagesSlider = ({
         background: "#000",
       }}
     >
-      {areImagesLoaded && children}
-      {areImagesLoaded && overlay && (
+      {(areImagesLoaded || loadFailed) && children}
+      {(areImagesLoaded || loadFailed) && overlay && (
         <div
           className={cn("absolute inset-0 bg-black/60 z-40", overlayClassName)}
         />

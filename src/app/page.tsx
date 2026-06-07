@@ -8,9 +8,9 @@ export default function LandingPage() {
   const router = useRouter();
 
   const images = [
-    "/hero-bg.jpg",
-    "/hero-bg-2.jpg",
-    "/hero-bg-3.jpg",
+    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/hero-bg.jpg",
+    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/hero-bg-2.jpg",
+    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/hero-bg-3.jpg",
   ];
 
   return (
