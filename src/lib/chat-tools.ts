@@ -1,51 +1,10 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { getPortfolioItems } from "@/data/portfolio";
+import { findWorkExperiences } from "@/data/work-experiences";
 
-const workExperiences = [
-  {
-    company: "猿辅导（斑马）",
-    period: "2019.10 — 至今",
-    role: "UI设计师",
-    highlights: [
-      "斑马百科全生态产品线全链路UI设计，覆盖移动端、车机、TV大屏、智能硬件、海外产品、电商模块",
-      "统筹斑马思维业务整体设计管理，搭建产品全局设计规范",
-      "自主研发Sketch自动化提效插件，实现思维交互题设计产能提升70%",
-      "主导海外本地化设计项目（斑马AI学日本版APP及日本官网）",
-      "全程负责斑马官方组件库从搭建、版本迭代到日常维护更新",
-    ],
-  },
-  {
-    company: "作业盒子",
-    period: "2017.09 — 2019.09",
-    role: "UI 设计师",
-    highlights: [
-      "负责拍作业APP整体视觉设计，搭建基础设计规范",
-      "统筹OCR业务线5端产品视觉体系（小盒家长、家长盒子、小盒老师、钉钉小程序等）",
-      "负责学生端、教师端学科场景、作业题型模块全流程视觉设计",
-    ],
-  },
-  {
-    company: "时趣互动北京科技有限公司",
-    period: "2016.11 — 2017.09",
-    role: "UI 设计师",
-    highlights: [
-      "网红城堡产品体验优化与视觉改版",
-      "网红卡营销项目全链路视觉设计",
-      "影响力大学平台整体UI设计迭代",
-      "智能助手产品界面与体验设计",
-    ],
-  },
-  {
-    company: "麻辣老师",
-    period: "2015.06 — 2016.11",
-    role: "UI 设计师",
-    highlights: [
-      "移动端APP、WAP端全页面UI设计、细节体验迭代",
-      "搭建产品初代控件库与基础视觉规范",
-    ],
-  },
-];
+// 工作经历数据已迁移到 COS: WorkExperience/work-experiences.json
+// 由 getWorkExperiences() / findWorkExperiences() 异步加载
 
 export const chatTools = {
   portfolioSearch: tool({
@@ -87,8 +46,7 @@ export const chatTools = {
       company: z.string().optional().describe("公司名称关键字，留空则返回全部"),
     }),
     execute: async ({ company }) => {
-      if (!company) return workExperiences;
-      return workExperiences.filter((e) => e.company.includes(company));
+      return findWorkExperiences(company);
     },
   }),
 
