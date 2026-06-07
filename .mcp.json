@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
+    },
+    "miaoduo": {
+      "command": "npx",
+      "args": ["-y", "@miaoduo/miaoduo-mcp-server@latest"],
+      "env": {
+        "MIAODUO_TOKEN": "0zXS22UR4hAtALxJwk7NvJd9SSl7bLCe"
+      }
+    }
+  }
+}
