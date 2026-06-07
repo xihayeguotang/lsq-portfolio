@@ -5,20 +5,18 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import type { UIMessage } from "ai";
 import PortfolioGrid from "@/components/portfolio-grid";
 import ResumeContent from "@/components/resume-content";
 import BusinessCard from "@/components/business-card";
 import { ImagesBadge } from "@/components/ui/images-badge";
 
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
-
 type ChatSession = {
   id: string;
   title: string;
-  messages: Message[];
+  messages: UIMessage[];
 };
 
 /* ============ SVG Icons ============ */
@@ -41,7 +39,6 @@ function DotsIcon() {
   );
 }
 
-
 function MenuIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -57,6 +54,17 @@ function HistoryIcon() {
       <path d="M9 5V9.5L11.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
+}
+
+/* ============ Utils ============ */
+
+/** Extract plain text from a UIMessage's parts array */
+function getMessageText(msg: UIMessage): string {
+  if (!msg.parts) return "";
+  return msg.parts
+    .filter((p): p is { type: "text"; text: string } => p.type === "text")
+    .map((p) => p.text)
+    .join("");
 }
 
 /* ============ Data ============ */
@@ -75,7 +83,7 @@ const suggestions = [
 
 /* ============ Components ============ */
 
-function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activeView, onNavigate }: { sessions: ChatSession[]; currentSessionId: string | null; onNewChat: () => void; onSelectSession: (id: string) => void; activeView: string; onNavigate: (view: string) => void }) {
+function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activeView, onNavigate, isLoading }: { sessions: ChatSession[]; currentSessionId: string | null; onNewChat: () => void; onSelectSession: (id: string) => void; activeView: string; onNavigate: (view: string) => void; isLoading: boolean }) {
   const router = useRouter();
   return (
     <aside className="sidebar">
@@ -140,7 +148,16 @@ function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activ
   );
 }
 
-function MainContent({ messages, isAiThinking, onSend }: { messages: Message[]; isAiThinking: boolean; onSend: (text: string) => void }) {
+function MainContent({ messages, isLoading, onSend, error }: { messages: UIMessage[]; isLoading: boolean; onSend: (text: string) => void; error?: Error }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   // Generate follow-up suggestions based on AI response content
   function getFollowUps(content: string): string[] {
     const all: { keywords: string[]; questions: string[] }[] = [
@@ -185,12 +202,12 @@ function MainContent({ messages, isAiThinking, onSend }: { messages: Message[]; 
       <Header />
       <div className={"chat-area" + (messages.length === 0 ? " empty-state" : "")}>
         {/* Messages scroll area */}
-        <div className={"chat-scroll" + (messages.length > 0 ? " has-messages" : "")}>
+        <div className={"chat-scroll" + (messages.length > 0 ? " has-messages" : "")} ref={scrollRef}>
           {messages.length > 0 && (
             <div className="messages">
               {messages.map((msg, i) => (
                 <motion.div
-                  key={i}
+                  key={msg.id || i}
                   initial={{ opacity: 0, y: 10, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
@@ -200,17 +217,17 @@ function MainContent({ messages, isAiThinking, onSend }: { messages: Message[]; 
                       <>
                         <div className="markdown-body">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {msg.content}
+                            {getMessageText(msg)}
                           </ReactMarkdown>
                         </div>
                       </>
                     ) : (
-                      msg.content
+                      getMessageText(msg)
                     )}
                   </div>
                 </motion.div>
               ))}
-              {isAiThinking && (
+              {isLoading && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -249,6 +266,21 @@ function MainContent({ messages, isAiThinking, onSend }: { messages: Message[]; 
                 </motion.div>
               )}
             </div>
+          )}
+          {/* Error state */}
+          {error && messages.length > 0 && !isLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="message message-assistant"
+            >
+              <div className="message-content">
+                <span style={{ color: "var(--dbx-accent)" }}>
+                  抱歉，请求出错了，请稍后重试。
+                </span>
+              </div>
+            </motion.div>
           )}
         </div>
 
@@ -290,7 +322,7 @@ function MainContent({ messages, isAiThinking, onSend }: { messages: Message[]; 
                   </span>
                 </span>
               </motion.div>
-              <ChatInput onSend={onSend} />
+              <ChatInput onSend={onSend} isLoading={isLoading} />
               <motion.div
                 className="suggestion-grid"
                 initial={{ opacity: 0, y: 10 }}
@@ -312,7 +344,7 @@ function MainContent({ messages, isAiThinking, onSend }: { messages: Message[]; 
               </motion.div>
             </div>
           )}
-          {messages.length > 0 && <ChatInput onSend={onSend} />}
+          {messages.length > 0 && <ChatInput onSend={onSend} isLoading={isLoading} />}
         </div>
       </div>
     </div>
@@ -344,7 +376,7 @@ function Header() {
   );
 }
 
-function ChatInput({ onSend }: { onSend: (text: string) => void }) {
+function ChatInput({ onSend, isLoading }: { onSend: (text: string) => void; isLoading?: boolean }) {
   const [hasText, setHasText] = useState(false);
   const [animating, setAnimating] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -381,14 +413,6 @@ function ChatInput({ onSend }: { onSend: (text: string) => void }) {
     const fontSize = parseFloat(style.fontSize) || 15;
     const lineHeight = parseFloat(style.lineHeight) || 24;
 
-    // Canvas is at position:absolute; top:0; left:0; inside .input-editor-row (same parent as editor).
-    // Editor is in normal flow at top-left of the flex container with padding:0.
-    // Both start at (0,0) CSS pixels relative to the parent.
-    //
-    // For the Y offset: CSS centers text within line-height, placing the glyphs
-    // at (lineHeight - fontSize) / 2 CSS pixels from the top of the line box.
-    // Canvas textBaseline:"top" places text at y=0 in the em box.
-    // In canvas coords (2x for scale(0.5)): offsetY = (lineHeight - fontSize).
     const offsetX = 0;
     const offsetY = lineHeight - fontSize; // in canvas pixels (2x CSS)
 
@@ -510,10 +534,10 @@ function ChatInput({ onSend }: { onSend: (text: string) => void }) {
       );
       runVanishSweep(maxX);
     }, 50);
-  }, [captureTextPixels, runVanishSweep]);
+  }, [captureTextPixels, runVanishSweep, onSend]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
-    if (e.key === "Enter" && !e.shiftKey && !animating) {
+    if (e.key === "Enter" && !e.shiftKey && !animating && !isLoading) {
       e.preventDefault();
       vanishAndSubmit();
     }
@@ -568,10 +592,31 @@ function ChatInput({ onSend }: { onSend: (text: string) => void }) {
 export default function ChatApp() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [isAiThinking, setIsAiThinking] = useState(false);
   const [view, setView] = useState<'chat' | 'portfolio' | 'resume'>('chat');
-  const aiTimerRef = useRef<any>(null);
-  const streamingTextRef = useRef<string>("");
+  const currentSessionIdRef = useRef<string | null>(null);
+
+  const { messages, setMessages, sendMessage, status, error, stop } = useChat({
+    transport: new DefaultChatTransport({ api: '/api/chat' }),
+    onFinish: ({ messages: newMessages }) => {
+      // Save completed messages to session store
+      const sid = currentSessionIdRef.current;
+      if (sid) {
+        setSessions(prev => prev.map(s =>
+          s.id === sid ? { ...s, messages: newMessages } : s
+        ));
+      }
+    },
+    onError: (err) => {
+      console.error('Chat error:', err);
+    },
+  });
+
+  const isLoading = status === 'submitted' || status === 'streaming';
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    currentSessionIdRef.current = currentSessionId;
+  }, [currentSessionId]);
 
   useEffect(() => {
     // 读取 URL 参数自动切换到对应视图
@@ -583,36 +628,6 @@ export default function ChatApp() {
     }
   }, []);
 
-  const currentSession = sessions.find(s => s.id === currentSessionId);
-  const messages = currentSession?.messages ?? [];
-
-  function updateSession(msgUpdater: (msgs: Message[]) => Message[]) {
-    if (!currentSessionId) return;
-    setSessions(prev => prev.map(s =>
-      s.id === currentSessionId ? { ...s, messages: msgUpdater(s.messages) } : s
-    ));
-  }
-
-  function handleNewChat() {
-    if (aiTimerRef.current) {
-      clearInterval(aiTimerRef.current);
-      aiTimerRef.current = null;
-    }
-    setCurrentSessionId(null);
-    setIsAiThinking(false);
-    setView('chat');
-  }
-
-  function selectSession(id: string) {
-    if (aiTimerRef.current) {
-      clearInterval(aiTimerRef.current);
-      aiTimerRef.current = null;
-    }
-    setCurrentSessionId(id);
-    setIsAiThinking(false);
-    setView('chat');
-  }
-
   function createSession(firstMsg: string): string {
     const id = Date.now().toString();
     const title = firstMsg.length > 22 ? firstMsg.slice(0, 22) + '...' : firstMsg;
@@ -622,89 +637,70 @@ export default function ChatApp() {
   }
 
   function onSend(text: string) {
-    if (!text.trim()) return;
-
-    // Clear any existing timer
-    if (aiTimerRef.current) {
-      clearInterval(aiTimerRef.current);
-      aiTimerRef.current = null;
-    }
+    if (!text.trim() || isLoading) return;
 
     // Create or use existing session
     let sid = currentSessionId;
     if (!sid) {
       sid = createSession(text.trim());
+      currentSessionIdRef.current = sid;
     }
-    const sessionId = sid;
 
-    const userMsg: Message = { role: "user", content: text.trim() };
-    setSessions((prev) => prev.map(s =>
-      s.id === sessionId ? { ...s, messages: [...s.messages, userMsg] } : s
-    ));
+    // Send user message and trigger AI response
+    sendMessage({
+      text: text.trim(),
+    });
+  }
 
-    // Build conversation history for API
-    const prevMessages = currentSession?.messages ?? [];
-    const apiMessages = [...prevMessages, userMsg];
+  function handleNewChat() {
+    // Save current session messages before switching away
+    const sid = currentSessionId;
+    if (sid && messages.length > 0) {
+      setSessions(prev => prev.map(s =>
+        s.id === sid ? { ...s, messages } : s
+      ));
+    }
+    if (isLoading) stop();
+    setCurrentSessionId(null);
+    setMessages([]);
+    setView('chat');
+  }
 
-    // Show thinking dots
-    setIsAiThinking(true);
+  function selectSession(id: string) {
+    // Save current session messages before switching
+    const sid = currentSessionId;
+    if (sid && messages.length > 0) {
+      setSessions(prev => prev.map(s =>
+        s.id === sid ? { ...s, messages } : s
+      ));
+    }
+    if (isLoading) stop();
 
-    // Call DeepSeek API with 30s timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-    fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: apiMessages }),
-      signal: controller.signal,
-    })
-      .then((res) => {
-        clearTimeout(timeoutId);
-        return res.json();
-      })
-      .then((data) => {
-        const fullText = data.reply || "抱歉，我暂时无法回答这个问题。";
-
-        setIsAiThinking(false);
-
-        // Add AI message with empty content, then stream characters
-        setSessions((prev) => prev.map(s =>
-          s.id === sessionId ? { ...s, messages: [...s.messages, { role: "assistant" as const, content: "" }] } : s
-        ));
-
-        streamingTextRef.current = fullText;
-        let charIndex = 0;
-        aiTimerRef.current = window.setInterval(() => {
-          charIndex++;
-          setSessions((prev) => prev.map(s => {
-            if (s.id !== sessionId) return s;
-            const msgs = [...s.messages];
-            const last = msgs[msgs.length - 1];
-            if (last && last.role === "assistant") {
-              msgs[msgs.length - 1] = { ...last, content: fullText.slice(0, charIndex) };
-            }
-            return { ...s, messages: msgs };
-          }));
-          if (charIndex >= fullText.length) {
-            clearInterval(aiTimerRef.current!);
-            aiTimerRef.current = null;
-          }
-        }, 40);
-      })
-      .catch((err) => {
-        console.error("Chat API error:", err);
-        setIsAiThinking(false);
-        setSessions((prev) => prev.map(s =>
-          s.id === sessionId ? { ...s, messages: [...s.messages, { role: "assistant" as const, content: "抱歉，请求出错了，请稍后重试。" }] } : s
-        ));
-      });
+    setCurrentSessionId(id);
+    const target = sessions.find(s => s.id === id);
+    setMessages(target?.messages ?? []);
+    setView('chat');
   }
 
   return (
     <div className="app-container">
-      <Sidebar sessions={sessions} currentSessionId={currentSessionId} onNewChat={handleNewChat} onSelectSession={selectSession} activeView={view} onNavigate={(v: string) => { setView(v as 'chat' | 'portfolio' | 'resume'); if (v !== 'chat') setCurrentSessionId(null); }} />
+      <Sidebar
+        sessions={sessions}
+        currentSessionId={currentSessionId}
+        onNewChat={handleNewChat}
+        onSelectSession={selectSession}
+        activeView={view}
+        onNavigate={(v: string) => {
+          setView(v as 'chat' | 'portfolio' | 'resume');
+          if (v !== 'chat') {
+            setCurrentSessionId(null);
+            setMessages([]);
+          }
+        }}
+        isLoading={isLoading}
+      />
       {view === 'chat' ? (
-        <MainContent messages={messages} isAiThinking={isAiThinking} onSend={onSend} />
+        <MainContent messages={messages} isLoading={isLoading} onSend={onSend} error={error} />
       ) : view === 'portfolio' ? (
         <div className="flex-1 flex flex-col overflow-hidden portfolio-content min-h-0" style={{ background: "var(--dbx-bg-base)" }}>
           <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 pb-8">

@@ -1,12 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
-import { portfolioItems } from "@/data/portfolio";
+import { getPortfolioItems } from "@/data/portfolio";
+import type { PortfolioItem } from "@/data/portfolio";
 
-function renderHeader(item: (typeof portfolioItems)[number]) {
+function renderHeader(item: PortfolioItem) {
   if (item.image) {
     return (
       <div className="relative w-full aspect-video rounded-xl overflow-hidden">
@@ -61,12 +63,44 @@ function TagChips({ tags }: { tags?: string[] }) {
   );
 }
 
+function SkeletonGrid() {
+  return (
+    <BentoGrid className="max-w-6xl mx-auto mt-6">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-2xl overflow-hidden animate-pulse"
+          style={{ background: "var(--dbx-bg-float)", border: "1px solid var(--dbx-border-light)" }}
+        >
+          <div className="aspect-video" style={{ background: "var(--dbx-fill-trans-10)" }} />
+          <div className="p-4 space-y-3">
+            <div className="h-4 w-2/3 rounded" style={{ background: "var(--dbx-fill-trans-10)" }} />
+            <div className="h-3 w-full rounded" style={{ background: "var(--dbx-fill-trans-10)" }} />
+            <div className="h-3 w-4/5 rounded" style={{ background: "var(--dbx-fill-trans-10)" }} />
+          </div>
+        </div>
+      ))}
+    </BentoGrid>
+  );
+}
+
 export default function PortfolioGrid() {
   const router = useRouter();
+  const [items, setItems] = useState<PortfolioItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getPortfolioItems().then((data) => {
+      setItems(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <SkeletonGrid />;
 
   return (
     <BentoGrid className="max-w-6xl mx-auto mt-6">
-        {portfolioItems.map((item, i) => (
+        {items.map((item, i) => (
           <motion.div
             key={item.slug}
             initial={{ opacity: 0, y: 30 }}

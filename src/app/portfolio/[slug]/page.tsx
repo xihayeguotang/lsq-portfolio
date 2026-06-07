@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,7 @@ import CarSystemData from "@/components/car-system-data";
 import HeroSectionCarSystem from "@/components/hero-section-car-system";
 import HeroSectionOverseasLocalization from "@/components/hero-section-overseas-localization";
 import HeroSectionEcommerceGrowth from "@/components/hero-section-ecommerce-growth";
-import { findPortfolioItem, portfolioItems, type PortfolioItem } from "@/data/portfolio";
+import { findPortfolioItem, getPortfolioItems, type PortfolioItem } from "@/data/portfolio";
 
 const shopBrowseHeroImages: { src: string; alt: string }[] = [
   { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/1.jpg", alt: "商店浏览图 1" },
@@ -65,6 +65,8 @@ function renderItemPage(
   router: ReturnType<typeof useRouter>,
   lightbox: LightboxState,
   setLightbox: (state: LightboxState) => void,
+  prevItem: PortfolioItem | null = null,
+  nextItem: PortfolioItem | null = null,
 ) {
   const isShopBrowse = slug === "shop-browse";
   const isOverseasWebsite = slug === "overseas-website";
@@ -76,11 +78,6 @@ function renderItemPage(
   const isCarSystem = slug === "car-system";
   const isOverseasLocalization = slug === "overseas-localization";
   const hasCommonContent = !isShopBrowse && !isOverseasWebsite && !isWeekendPlayground && !isMyFamily && !isSketchPlugin && !isTv && !isCarSystem && !isOverseasLocalization && !isBaikeEcommerce;
-
-  // 上一个/下一个项目
-  const currentIndex = portfolioItems.findIndex((p) => p.slug === slug);
-  const prevItem = currentIndex > 0 ? portfolioItems[currentIndex - 1] : null;
-  const nextItem = currentIndex < portfolioItems.length - 1 ? portfolioItems[currentIndex + 1] : null;
 
   return (
     <>
@@ -590,6 +587,47 @@ function renderItemPage(
   );
 }
 
+function LoadingSkeleton() {
+  return (
+    <div
+      className="w-full h-full flex flex-col items-center justify-center gap-3"
+      style={{ background: "var(--dbx-bg-base)" }}
+    >
+      <div className="w-10 h-10 rounded-full border-2 border-transparent animate-spin"
+        style={{ borderTopColor: "var(--dbx-text-tertiary)", borderRightColor: "var(--dbx-text-tertiary)" }}
+      />
+      <p className="text-sm" style={{ color: "var(--dbx-text-tertiary)" }}>加载中...</p>
+    </div>
+  );
+}
+
+function NotFound({ router }: { router: ReturnType<typeof useRouter> }) {
+  return (
+    <div
+      className="w-full h-full flex flex-col items-center justify-center gap-4"
+      style={{ background: "var(--dbx-bg-base)" }}
+    >
+      <span className="text-5xl">🔍</span>
+      <p style={{ color: "var(--dbx-text-secondary)" }}>
+        未找到该项目
+      </p>
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={() => router.push("/portfolio")}
+        className="px-4 py-2 rounded-lg text-sm font-medium cursor-pointer"
+        style={{
+          color: "var(--dbx-text-primary)",
+          background: "var(--dbx-fill-trans-10)",
+          border: "1px solid var(--dbx-border-light)",
+        }}
+      >
+        返回作品集
+      </motion.button>
+    </div>
+  );
+}
+
 export default function PortfolioDetailPage({
   params,
 }: {
@@ -597,36 +635,32 @@ export default function PortfolioDetailPage({
 }) {
   const { slug } = use(params);
   const router = useRouter();
-  const item = findPortfolioItem(slug);
 
-  if (!item) {
-    return (
-      <div
-        className="w-full h-full flex flex-col items-center justify-center gap-4"
-        style={{ background: "var(--dbx-bg-base)" }}
-      >
-        <span className="text-5xl">🔍</span>
-        <p style={{ color: "var(--dbx-text-secondary)" }}>
-          未找到该项目
-        </p>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => router.push("/portfolio")}
-          className="px-4 py-2 rounded-lg text-sm font-medium cursor-pointer"
-          style={{
-            color: "var(--dbx-text-primary)",
-            background: "var(--dbx-fill-trans-10)",
-            border: "1px solid var(--dbx-border-light)",
-          }}
-        >
-          返回作品集
-        </motion.button>
-      </div>
-    );
-  }
-
+  const [item, setItem] = useState<PortfolioItem | null>(null);
+  const [prevItem, setPrevItem] = useState<PortfolioItem | null>(null);
+  const [nextItem, setNextItem] = useState<PortfolioItem | null>(null);
+  const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState<LightboxState>(null);
 
-  return renderItemPage(item, slug, router, lightbox, setLightbox);
+  useEffect(() => {
+    async function load() {
+      const [target, all] = await Promise.all([
+        findPortfolioItem(slug),
+        getPortfolioItems(),
+      ]);
+      setItem(target);
+      if (target) {
+        const idx = all.findIndex((p) => p.slug === slug);
+        setPrevItem(idx > 0 ? all[idx - 1] : null);
+        setNextItem(idx < all.length - 1 ? all[idx + 1] : null);
+      }
+      setLoading(false);
+    }
+    load();
+  }, [slug]);
+
+  if (loading) return <LoadingSkeleton />;
+  if (!item) return <NotFound router={router} />;
+
+  return renderItemPage(item, slug, router, lightbox, setLightbox, prevItem, nextItem);
 }
