@@ -196,9 +196,9 @@ export default function HeroSectionEcommerceGrowth() {
             className="flex-1 flex justify-center gap-3 sm:gap-4"
           >
             {[
-              { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/baike-ecommerce/即将到期提示.jpg", alt: "即将到期提示" },
-              { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/baike-ecommerce/首页弹窗.jpg", alt: "首页弹窗" },
-              { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/baike-ecommerce/课节列表.jpg", alt: "课节列表" },
+              { src: "/cos/projects/baike-ecommerce/即将到期提示.jpg", alt: "即将到期提示" },
+              { src: "/cos/projects/baike-ecommerce/首页弹窗.jpg", alt: "首页弹窗" },
+              { src: "/cos/projects/baike-ecommerce/课节列表.jpg", alt: "课节列表" },
             ].map((item, i) => (
               <PhoneMockup
                 key={i}
@@ -316,9 +316,9 @@ export default function HeroSectionEcommerceGrowth() {
             className="flex-1 flex justify-center gap-3 sm:gap-4"
           >
             {[
-              { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/baike-ecommerce/百科成长主页.jpg", alt: "百科成长主页" },
-              { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/baike-ecommerce/领域详情页.jpg", alt: "领域详情页" },
-              { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/baike-ecommerce/周报.jpg", alt: "周报" },
+              { src: "/cos/projects/baike-ecommerce/百科成长主页.jpg", alt: "百科成长主页" },
+              { src: "/cos/projects/baike-ecommerce/领域详情页.jpg", alt: "领域详情页" },
+              { src: "/cos/projects/baike-ecommerce/周报.jpg", alt: "周报" },
             ].map((item, i) => (
               <PhoneMockup
                 key={i}

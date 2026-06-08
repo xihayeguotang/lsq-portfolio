@@ -71,7 +71,7 @@ export default function PlayerScreen({ onBack, category }: { onBack: () => void;
           <div style={{ flex: 1, background: "#0D0D0D", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" as const }}>
             <video
               ref={videoRef}
-              src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/video-clip.mp4"
+              src="/cos/video-clip.mp4"
               autoPlay
               loop
               playsInline
@@ -82,7 +82,7 @@ export default function PlayerScreen({ onBack, category }: { onBack: () => void;
 
             {trialEnded && (
               <div style={{ position: "absolute" as const, inset: 0, background: "#000000", zIndex: 40 }}>
-                <img src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/trial-end-overlay.png?v=2" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src="/cos/trial-end-overlay.png?v=2" alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
             )}
 

@@ -4,18 +4,18 @@ import { motion } from "motion/react";
 import Image from "next/image";
 
 const images = [
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/首页_半屏_dark.jpg", alt: "首页" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/登录常态_dark.jpg", alt: "登录" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/授权弹窗_dark.jpg", alt: "授权弹窗" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/加载中_dark.jpg", alt: "加载中" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/我的主题_dark.jpg", alt: "我的主题" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/设置_dark.jpg", alt: "设置" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/扫码成功_dark.jpg", alt: "扫码成功" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/删除数据_dark.jpg", alt: "删除数据" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/冷启动_半屏_dark.jpg", alt: "冷启动" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/试看结束_dark.jpg", alt: "试看结束" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/退出登录_dark.jpg", alt: "退出登录" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/screenshots/隐私协议_默认_dark.jpg", alt: "隐私协议" },
+  { src: "/cos/projects/car-system/screenshots/首页_半屏_dark.jpg", alt: "首页" },
+  { src: "/cos/projects/car-system/screenshots/登录常态_dark.jpg", alt: "登录" },
+  { src: "/cos/projects/car-system/screenshots/授权弹窗_dark.jpg", alt: "授权弹窗" },
+  { src: "/cos/projects/car-system/screenshots/加载中_dark.jpg", alt: "加载中" },
+  { src: "/cos/projects/car-system/screenshots/我的主题_dark.jpg", alt: "我的主题" },
+  { src: "/cos/projects/car-system/screenshots/设置_dark.jpg", alt: "设置" },
+  { src: "/cos/projects/car-system/screenshots/扫码成功_dark.jpg", alt: "扫码成功" },
+  { src: "/cos/projects/car-system/screenshots/删除数据_dark.jpg", alt: "删除数据" },
+  { src: "/cos/projects/car-system/screenshots/冷启动_半屏_dark.jpg", alt: "冷启动" },
+  { src: "/cos/projects/car-system/screenshots/试看结束_dark.jpg", alt: "试看结束" },
+  { src: "/cos/projects/car-system/screenshots/退出登录_dark.jpg", alt: "退出登录" },
+  { src: "/cos/projects/car-system/screenshots/隐私协议_默认_dark.jpg", alt: "隐私协议" },
 ];
 
 interface MarqueeRowProps {
