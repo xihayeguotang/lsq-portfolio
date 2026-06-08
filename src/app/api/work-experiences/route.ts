@@ -8,12 +8,12 @@ export const revalidate = 3600;
 export async function GET() {
   try {
     const res = await fetch(
-      `${COS_JSON_BASE}/WorkExperience/portfolio-items.json`
+      `${COS_JSON_BASE}/WorkExperience/work-experiences.json`
     );
 
     if (!res.ok) {
       return NextResponse.json(
-        { error: "加载作品集数据失败" },
+        { error: "加载工作经历数据失败" },
         { status: 500 }
       );
     }
@@ -21,7 +21,7 @@ export async function GET() {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Portfolio API error:", error);
+    console.error("Work experience API error:", error);
     return NextResponse.json(
       { error: "服务器内部错误" },
       { status: 500 }
