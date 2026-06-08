@@ -5,8 +5,8 @@ import { SparklesCore } from "@/components/ui/sparkles";
 import PhoneMockup from "@/components/phone-mockup";
 
 const activityImages = [
-  { src: "/cos/projects/overseas-localization/activity-1.jpg", alt: "完课返现活动 1", bottom: "/cos/projects/overseas-localization/phone-bottom.jpg" },
-  { src: "/cos/projects/overseas-localization/activity-2.jpg", alt: "完课返现活动 2", bottom: "/cos/projects/overseas-localization/phone-bottom-2.png" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-localization/activity-1.jpg", alt: "完课返现活动 1", bottom: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-localization/phone-bottom.jpg" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-localization/activity-2.jpg", alt: "完课返现活动 2", bottom: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-localization/phone-bottom-2.png" },
 ];
 
 export default function HeroSectionOverseasLocalization() {
@@ -207,8 +207,8 @@ export default function HeroSectionOverseasLocalization() {
             className="flex-1 flex justify-center gap-4 sm:gap-6"
           >
             {[
-              { src: "/cos/projects/overseas-localization/referral-1.jpg", alt: "转介绍活动 1", bottom: "/cos/projects/overseas-localization/referral-bottom.jpg" },
-              { src: "/cos/projects/overseas-localization/referral-2.jpg", alt: "转介绍活动 2" },
+              { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-localization/referral-1.jpg", alt: "转介绍活动 1", bottom: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-localization/referral-bottom.jpg" },
+              { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-localization/referral-2.jpg", alt: "转介绍活动 2" },
             ].map((item, i) => (
               <PhoneMockup
                 key={i}

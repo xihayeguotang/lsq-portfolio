@@ -15,11 +15,11 @@ interface BenefitItem {
 }
 
 const benefits: BenefitItem[] = [
-  { icon: "/cos/images/vip/icon-theme.svg", label: "全站主题畅看", iconWidth: 26, iconHeight: 24.87, iconMarginTop: 4.56, iconMarginLeft: 44, iconTextGap: 1 },
-  { icon: "/cos/images/vip/icon-mini.svg", label: "百科Mini", iconWidth: 28, iconHeight: 23.02, iconMarginTop: 5.49, iconMarginLeft: 26, iconTextGap: 0.98 },
-  { icon: "/cos/images/vip/icon-bilingual.svg", label: "中英双语", iconWidth: 26.04, iconHeight: 26.0, iconMarginTop: 4.0, iconMarginLeft: 26.98, iconTextGap: 0.98 },
-  { icon: "/cos/images/vip/icon-free.svg", label: "免费内容", iconWidth: 25.5, iconHeight: 23.35, iconMarginTop: 5.33, iconMarginLeft: 27.25, iconTextGap: 1.25 },
-  { icon: "/cos/images/vip/icon-new.svg", label: "上新抢先看", iconWidth: 20.74, iconHeight: 25.8, iconMarginTop: 3.94, iconMarginLeft: 32.73, iconTextGap: 0.53 },
+  { icon: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/images/vip/icon-theme.svg", label: "全站主题畅看", iconWidth: 26, iconHeight: 24.87, iconMarginTop: 4.56, iconMarginLeft: 44, iconTextGap: 1 },
+  { icon: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/images/vip/icon-mini.svg", label: "百科Mini", iconWidth: 28, iconHeight: 23.02, iconMarginTop: 5.49, iconMarginLeft: 26, iconTextGap: 0.98 },
+  { icon: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/images/vip/icon-bilingual.svg", label: "中英双语", iconWidth: 26.04, iconHeight: 26.0, iconMarginTop: 4.0, iconMarginLeft: 26.98, iconTextGap: 0.98 },
+  { icon: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/images/vip/icon-free.svg", label: "免费内容", iconWidth: 25.5, iconHeight: 23.35, iconMarginTop: 5.33, iconMarginLeft: 27.25, iconTextGap: 1.25 },
+  { icon: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/images/vip/icon-new.svg", label: "上新抢先看", iconWidth: 20.74, iconHeight: 25.8, iconMarginTop: 3.94, iconMarginLeft: 32.73, iconTextGap: 0.53 },
 ];
 
 const firstIconMarginTop = benefits[0].iconMarginTop; // 4.56
@@ -37,7 +37,7 @@ export default function VipBenefitsBanner() {
       {/* Background layer */}
       <div className="absolute inset-0">
         <Image
-          src="/cos/images/vip/bg.svg"
+          src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/images/vip/bg.svg"
           alt=""
           fill
           className="object-cover"
@@ -47,7 +47,7 @@ export default function VipBenefitsBanner() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: "url('/cos/images/vip/bg-blur.svg')",
+            backgroundImage: "url('https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/images/vip/bg-blur.svg')",
             backgroundSize: "cover",
             filter: "blur(182px)",
           }}

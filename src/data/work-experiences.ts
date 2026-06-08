@@ -1,5 +1,3 @@
-import { COS_BASE } from "./constants";
-
 export interface WorkExperience {
   company: string;
   period: string;
@@ -7,7 +5,7 @@ export interface WorkExperience {
   highlights: string[];
 }
 
-const WORK_URL = `${COS_BASE}/WorkExperience/work-experiences.json`;
+const WORK_URL = "/api/work-experiences";
 
 let cache: WorkExperience[] | null = null;
 

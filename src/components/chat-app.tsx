@@ -298,9 +298,9 @@ function MainContent({ messages, isLoading, onSend, error }: { messages: UIMessa
                   <ImagesBadge
                     text=""
                     images={[
-                      "/cos/projects/car-system/cover.jpg",
-                      "/cos/projects/tv/cover.jpg",
-                      "/cos/projects/baike-ecommerce/cover.jpg",
+                      "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/cover.jpg",
+                      "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/tv/cover.jpg",
+                      "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/baike-ecommerce/cover.jpg",
                     ]}
                     folderSize={{ width: 36, height: 27 }}
                     teaserImageSize={{ width: 22, height: 16 }}

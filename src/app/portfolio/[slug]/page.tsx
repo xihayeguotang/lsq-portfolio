@@ -24,27 +24,27 @@ import HeroSectionEcommerceGrowth from "@/components/hero-section-ecommerce-grow
 import { findPortfolioItem, getPortfolioItems, type PortfolioItem } from "@/data/portfolio";
 
 const shopBrowseHeroImages: { src: string; alt: string }[] = [
-  { src: "/cos/projects/zebra-baike/1.jpg", alt: "商店浏览图 1" },
-  { src: "/cos/projects/zebra-baike/2.jpg", alt: "商店浏览图 2" },
-  { src: "/cos/projects/zebra-baike/3.jpg", alt: "商店浏览图 3" },
-  { src: "/cos/projects/zebra-baike/4.jpg", alt: "商店浏览图 4" },
-  { src: "/cos/projects/zebra-baike/5.jpg", alt: "商店浏览图 5" },
-  { src: "/cos/projects/zebra-baike/6.jpg", alt: "商店浏览图 6" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/1.jpg", alt: "商店浏览图 1" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/2.jpg", alt: "商店浏览图 2" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/3.jpg", alt: "商店浏览图 3" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/4.jpg", alt: "商店浏览图 4" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/5.jpg", alt: "商店浏览图 5" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/6.jpg", alt: "商店浏览图 6" },
 ];
 
 const shopBrowseHDImages: { src: string; alt: string }[] = [
-  { src: "/cos/projects/zebra-baike-hd/1.jpg", alt: "HD 浏览图 1" },
-  { src: "/cos/projects/zebra-baike-hd/2.jpg", alt: "HD 浏览图 2" },
-  { src: "/cos/projects/zebra-baike-hd/3.jpg", alt: "HD 浏览图 3" },
-  { src: "/cos/projects/zebra-baike-hd/4.jpg", alt: "HD 浏览图 4" },
-  { src: "/cos/projects/zebra-baike-hd/5.jpg", alt: "HD 浏览图 5" },
-  { src: "/cos/projects/zebra-baike-hd/6.jpg", alt: "HD 浏览图 6" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/1.jpg", alt: "HD 浏览图 1" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/2.jpg", alt: "HD 浏览图 2" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/3.jpg", alt: "HD 浏览图 3" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/4.jpg", alt: "HD 浏览图 4" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/5.jpg", alt: "HD 浏览图 5" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/6.jpg", alt: "HD 浏览图 6" },
 ];
 
 const myFamilyImages: { src: string; alt: string }[] = Array.from(
   { length: 6 },
   (_, i) => ({
-    src: `/cos/projects/my-family/${i + 1}.jpg`,
+    src: `https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/my-family/${i + 1}.jpg`,
     alt: `My Family ${i + 1}`,
   }),
 );
@@ -52,7 +52,7 @@ const myFamilyImages: { src: string; alt: string }[] = Array.from(
 const weekendPlaygroundImages: { src: string; alt: string }[] = Array.from(
   { length: 15 },
   (_, i) => ({
-    src: `/cos/projects/weekend-playground/${i + 1}.png`,
+    src: `https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/weekend-playground/${i + 1}.png`,
     alt: `周末游乐场 ${i + 1}`,
   }),
 );
@@ -278,7 +278,7 @@ function renderItemPage(
               >
                 <Card className="overflow-hidden p-0">
                   <video
-                    src="/cos/projects/weekend-playground/lets-run-demo.mov"
+                    src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/weekend-playground/lets-run-demo.mov"
                     controls
                     playsInline
                     className="w-full h-auto"

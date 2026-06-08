@@ -62,7 +62,7 @@ export default function OverseasWebsiteSim() {
             {/* Logo */}
             <div className="flex items-center gap-2">
               <Image
-                src="/cos/logo.svg"
+                src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/logo.svg"
                 alt="Cretapedia"
                 width={164}
                 height={40}
@@ -143,7 +143,7 @@ export default function OverseasWebsiteSim() {
         {/* 图片绝对定位叠加在右侧，底部对齐 */}
         <div className="absolute bottom-0 right-0 anim-float" style={{ width: "800px", height: "450px" }}>
           <Image
-            src="/cos/projects/overseas-website/hero-element.png"
+            src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/hero-element.png"
             alt="Hero"
             fill
             className="object-contain object-right"
@@ -189,7 +189,7 @@ export default function OverseasWebsiteSim() {
           <div className={`flex items-center justify-between gap-6 ${visible.has(0) ? "in-view" : ""} anim-stagger`}>
             <div className="flex-1 flex items-center justify-center anim-fade-up">
               <Image
-                src="/cos/projects/overseas-website/award-1.png"
+                src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/award-1.png"
                 alt="Award 1"
                 width={200}
                 height={60}
@@ -198,7 +198,7 @@ export default function OverseasWebsiteSim() {
             </div>
             <div className="flex-1 flex items-center justify-center anim-fade-up">
               <Image
-                src="/cos/projects/overseas-website/award-2.png"
+                src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/award-2.png"
                 alt="Award 2"
                 width={200}
                 height={60}
@@ -207,7 +207,7 @@ export default function OverseasWebsiteSim() {
             </div>
             <div className="flex-1 flex items-center justify-center anim-fade-up">
               <Image
-                src="/cos/projects/overseas-website/award-3.png"
+                src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/award-3.png"
                 alt="Award 3"
                 width={200}
                 height={60}
@@ -239,7 +239,7 @@ export default function OverseasWebsiteSim() {
             <div className={`flex-1 ${visible.has(1) ? "in-view" : ""} anim-fade-right`}>
               <div className="rounded-2xl overflow-hidden">
                 <Image
-                  src="/cos/projects/overseas-website/feature-3d.png"
+                  src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/feature-3d.png"
                   alt="3D 心脏解剖教学"
                   width={640}
                   height={480}
@@ -263,7 +263,7 @@ export default function OverseasWebsiteSim() {
             <div className={`flex-1 ${visible.has(2) ? "in-view" : ""} anim-fade-left`}>
               <div className="rounded-2xl overflow-hidden">
                 <Image
-                  src="/cos/projects/overseas-website/feature-quiz.png"
+                  src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/feature-quiz.png"
                   alt="互动测验"
                   width={640}
                   height={480}
@@ -292,7 +292,7 @@ export default function OverseasWebsiteSim() {
           <div className={`w-full ${visible.has(3) ? "in-view" : ""} anim-fade-up`}>
             <div className="rounded-2xl overflow-hidden bg-white w-full">
               <Image
-                src="/cos/projects/overseas-website/feature-explorers.png"
+                src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/feature-explorers.png"
                 alt="Empower explorers"
                 width={1170}
                 height={700}
@@ -313,7 +313,7 @@ export default function OverseasWebsiteSim() {
           <div className={`w-full ${visible.has(4) ? "in-view" : ""} anim-fade-up`}>
             <div className="rounded-2xl overflow-hidden w-full">
               <Image
-                src="/cos/projects/overseas-website/feature-catalog.png"
+                src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/feature-catalog.png"
                 alt="3D catalog"
                 width={1170}
                 height={700}
@@ -410,7 +410,7 @@ export default function OverseasWebsiteSim() {
                     className="flex-shrink-0 rounded-xl overflow-hidden"
                   >
                     <Image
-                      src={`/cos/projects/overseas-website/courses/${src}`}
+                      src={`https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/courses/${src}`}
                       alt={`Course ${i + 1}`}
                       width={160}
                       height={160}
@@ -483,7 +483,7 @@ export default function OverseasWebsiteSim() {
                   ) : (
                     <div key={`${dup}-${i}`} className="flex-shrink-0 w-[280px] rounded-2xl overflow-hidden mx-2.5">
                       <Image
-                        src={`/cos/projects/overseas-website/${(item as any).src}.jpg`}
+                        src={`https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/${(item as any).src}.jpg`}
                         alt="Scene"
                         width={280}
                         height={200}
@@ -502,7 +502,7 @@ export default function OverseasWebsiteSim() {
       <footer className="mt-auto w-full bg-[#00CC66] flex justify-center py-20">
         <div className="max-w-[1000px] w-full">
           <Image
-            src="/cos/projects/overseas-website/footer-bg.jpg"
+            src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/overseas-website/footer-bg.jpg"
             alt="Footer"
             width={1000}
             height={394}

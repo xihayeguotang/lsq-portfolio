@@ -262,8 +262,8 @@ export default function CarSystemSim() {
 
             <div className="w-full">
               <Compare
-                firstImage={isFullScreen ? "/cos/projects/car-system/home-full-dark.jpg" : "/cos/projects/car-system/home-half-dark.jpg"}
-                secondImage={isFullScreen ? "/cos/projects/car-system/home-full-light.jpg" : "/cos/projects/car-system/home-light.jpg"}
+                firstImage={isFullScreen ? "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/home-full-dark.jpg" : "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/home-half-dark.jpg"}
+                secondImage={isFullScreen ? "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/home-full-light.jpg" : "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/home-light.jpg"}
                 className="w-full h-auto aspect-[16/9] rounded-lg"
                 slideMode="drag"
                 initialSliderPercentage={50}

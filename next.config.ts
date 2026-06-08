@@ -3,15 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
-  },
-  async rewrites() {
-    return [
+    remotePatterns: [
       {
-        source: "/cos/:path*",
-        destination:
-          "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/:path*",
+        protocol: "https",
+        hostname: "liangsq-1440954703.cos.ap-beijing.myqcloud.com",
       },
-    ];
+    ],
   },
 };
 

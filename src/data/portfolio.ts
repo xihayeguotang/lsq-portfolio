@@ -39,7 +39,7 @@ async function loadPortfolio(): Promise<PortfolioItem[]> {
   for (const item of items) {
     if (item.slug === "sketch-plugin") {
       item.detailImages = Array.from({ length: 14 }, (_, i) => ({
-        src: `/cos/projects/sketch-plugin/${i + 4}.jpg`,
+        src: `https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/sketch-plugin/${i + 4}.jpg`,
         alt: `Sketch 提效插件 ${i + 1}`,
       }));
     }

@@ -80,7 +80,7 @@ export default function HeroSectionCarSystem() {
       >
         <div className="relative w-full aspect-[16/7] rounded-xl overflow-hidden" style={{ border: "1px solid var(--dbx-border-light)" }}>
           <Image
-            src="/cos/projects/car-system/hero.jpg"
+            src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/car-system/hero.jpg"
             alt="车机端设计展示"
             fill
             className="object-cover"
