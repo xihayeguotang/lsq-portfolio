@@ -176,7 +176,11 @@ export default function ResumeContent() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.3, delay: j * 0.05 }}
                             className="text-sm leading-relaxed pl-5 relative"
-                            style={{ color: "var(--dbx-text-secondary)" }}
+                            style={{
+                              color: j === 0
+                                ? "var(--dbx-text-secondary)"
+                                : "var(--dbx-text-tertiary)",
+                            }}
                           >
                             <span
                               className="absolute left-0 top-[0.6em] w-1.5 h-1.5 rounded-full"
@@ -184,10 +188,19 @@ export default function ResumeContent() {
                                 background:
                                   j === 0
                                     ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
-                                    : "var(--dbx-text-tertiary)",
+                                    : "var(--dbx-fill-trans-20)",
                               }}
                             />
-                            {h}
+                            <span
+                              className={j === 0 ? "font-semibold" : ""}
+                              style={{
+                                color: j === 0
+                                  ? "var(--dbx-text-primary)"
+                                  : "var(--dbx-text-tertiary)",
+                              }}
+                            >
+                              {h}
+                            </span>
                           </motion.li>
                         ))}
                       </ul>

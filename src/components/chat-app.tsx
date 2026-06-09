@@ -598,12 +598,20 @@ export default function ChatApp() {
   const { messages, setMessages, sendMessage, status, error, stop } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
     onFinish: ({ messages: newMessages }) => {
-      // Save completed messages to session store
+      // Save completed messages to session store AND persist to localStorage
       const sid = currentSessionIdRef.current;
       if (sid) {
-        setSessions(prev => prev.map(s =>
-          s.id === sid ? { ...s, messages: newMessages } : s
-        ));
+        setSessions(prev => {
+          const updated = prev.map(s =>
+            s.id === sid ? { ...s, messages: newMessages } : s
+          );
+          // 立即持久化，防止导航离开时丢失
+          try {
+            localStorage.setItem("chat-sessions", JSON.stringify(updated));
+            localStorage.setItem("chat-current-session-id", sid);
+          } catch {}
+          return updated;
+        });
       }
     },
     onError: (err) => {
@@ -617,6 +625,69 @@ export default function ChatApp() {
   useEffect(() => {
     currentSessionIdRef.current = currentSessionId;
   }, [currentSessionId]);
+
+  // 从 localStorage 恢复历史会话
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("chat-sessions");
+      const savedId = localStorage.getItem("chat-current-session-id");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSessions(parsed);
+          // 恢复最后活跃的会话
+          if (savedId) {
+            const target = parsed.find((s: { id: string }) => s.id === savedId);
+            setCurrentSessionId(savedId);
+            if (target?.messages) {
+              setMessages(target.messages);
+            }
+          }
+        }
+      }
+    } catch {}
+  }, []);
+
+  // 会话变化时持久化到 localStorage
+  useEffect(() => {
+    if (sessions.length > 0) {
+      localStorage.setItem("chat-sessions", JSON.stringify(sessions));
+      if (currentSessionId) {
+        localStorage.setItem("chat-current-session-id", currentSessionId);
+      }
+    }
+  }, [sessions, currentSessionId]);
+
+  // 组件卸载时（导航离开）保护保存
+  const latestSessionIdRef = useRef(currentSessionId);
+  latestSessionIdRef.current = currentSessionId;
+  const sessionsRef = useRef(sessions);
+  sessionsRef.current = sessions;
+  useEffect(() => {
+    return () => {
+      const s = sessionsRef.current;
+      if (s.length > 0) {
+        try {
+          localStorage.setItem("chat-sessions", JSON.stringify(s));
+          if (latestSessionIdRef.current) {
+            localStorage.setItem("chat-current-session-id", latestSessionIdRef.current);
+          }
+        } catch {}
+      }
+    };
+  }, []);
+
+  // 页面可见性变化时（用户切换 Tab 或导航回来时）重新保存
+  useEffect(() => {
+    function save() {
+      if (sessions.length > 0) {
+        localStorage.setItem("chat-sessions", JSON.stringify(sessions));
+        localStorage.setItem("chat-current-session-id", currentSessionId ?? "");
+      }
+    }
+    document.addEventListener("visibilitychange", save);
+    return () => document.removeEventListener("visibilitychange", save);
+  }, [sessions, currentSessionId]);
 
   useEffect(() => {
     // 读取 URL 参数自动切换到对应视图

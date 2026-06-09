@@ -20,6 +20,7 @@ import TvDataMetrics from "@/components/tv-data-metrics";
 import CarSystemData from "@/components/car-system-data";
 import HeroSectionCarSystem from "@/components/hero-section-car-system";
 import HeroSectionOverseasLocalization from "@/components/hero-section-overseas-localization";
+import OverseasDesignResearch from "@/components/overseas-design-research";
 import HeroSectionEcommerceGrowth from "@/components/hero-section-ecommerce-growth";
 import { findPortfolioItem, getPortfolioItems, type PortfolioItem } from "@/data/portfolio";
 
@@ -97,10 +98,10 @@ function renderItemPage(
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => router.push("/chat?view=portfolio")}
-            className="flex items-center gap-1.5 cursor-pointer"
+            onClick={() => router.push("/portfolio")}
+            className="flex items-center gap-1.5 cursor-pointer group"
             style={{ color: "var(--dbx-text-tertiary)" }}
-            title="作品集"
+            title="返回作品集"
           >
             <svg
               width="18"
@@ -112,28 +113,23 @@ function renderItemPage(
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <rect width="7" height="7" x="3" y="3" rx="1" />
-              <rect width="7" height="7" x="14" y="3" rx="1" />
-              <rect width="7" height="7" x="3" y="14" rx="1" />
-              <rect width="7" height="7" x="14" y="14" rx="1" />
+              <path d="M19 12H5" />
+              <polyline points="12 19 5 12 12 5" />
             </svg>
+            <span
+              className="text-xs transition-all duration-200 opacity-0 group-hover:opacity-100 whitespace-nowrap"
+              style={{ color: "var(--dbx-text-tertiary)" }}
+            >
+              作品集
+            </span>
           </motion.button>
           <Breadcrumb
             items={[
-              { label: "作品集", href: "/chat?view=portfolio" },
+              { label: "作品集", href: "/portfolio" },
               { label: item.title },
             ]}
           />
         </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => router.push("/chat")}
-          className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer bg-[var(--dbx-fill-trans-10)] border border-[var(--dbx-border-light)] hover:bg-white/[0.1] hover:border-white/25"
-          style={{ color: "var(--dbx-text-primary)" }}
-        >
-          AI 助手
-        </motion.button>
       </motion.div>
 
       {/* ======== Content ======== */}
@@ -253,6 +249,7 @@ function renderItemPage(
         {isOverseasLocalization && (
           <div className="w-full">
             <HeroSectionOverseasLocalization />
+            <OverseasDesignResearch />
           </div>
         )}
 
