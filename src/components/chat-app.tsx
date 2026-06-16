@@ -2,16 +2,17 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { motion } from "motion/react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
-import PortfolioGrid from "@/components/portfolio-grid";
-import ResumeContent from "@/components/resume-content";
 import BusinessCard from "@/components/business-card";
 import { ImagesBadge } from "@/components/ui/images-badge";
+
+const PortfolioGrid = dynamic(() => import("@/components/portfolio-grid"), { ssr: false });
+const ResumeContent = dynamic(() => import("@/components/resume-content"), { ssr: false });
+const MarkdownRenderer = dynamic(() => import("@/components/markdown-renderer"), { ssr: false });
 
 type ChatSession = {
   id: string;
@@ -216,9 +217,7 @@ function MainContent({ messages, isLoading, onSend, error }: { messages: UIMessa
                     {msg.role === "assistant" ? (
                       <>
                         <div className="markdown-body">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {getMessageText(msg)}
-                          </ReactMarkdown>
+                          <MarkdownRenderer content={getMessageText(msg)} />
                         </div>
                       </>
                     ) : (

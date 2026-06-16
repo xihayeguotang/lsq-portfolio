@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import PortfolioGrid from "@/components/portfolio-grid";
-import Breadcrumb from "@/components/ui/breadcrumb";
 
 export default function PortfolioPage() {
   const router = useRouter();
@@ -23,7 +22,7 @@ export default function PortfolioPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => router.push("/chat")}
-            className="flex items-center gap-1.5 cursor-pointer"
+            className="flex items-center gap-1.5 cursor-pointer group"
             style={{ color: "var(--dbx-text-tertiary)" }}
             title="AI 助手"
           >
@@ -37,14 +36,16 @@ export default function PortfolioPage() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <path d="M19 12H5" />
+              <polyline points="12 19 5 12 12 5" />
             </svg>
+            <span
+              className="text-xs transition-all duration-200 opacity-0 group-hover:opacity-100 whitespace-nowrap"
+              style={{ color: "var(--dbx-text-tertiary)" }}
+            >
+              AI 助手
+            </span>
           </motion.button>
-          <Breadcrumb
-            items={[
-              { label: "作品集" },
-            ]}
-          />
         </div>
       </motion.div>
 

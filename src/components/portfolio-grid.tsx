@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
@@ -89,6 +89,16 @@ export default function PortfolioGrid() {
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const navToDetail = useCallback((slug: string, figmaUrl?: string) => {
+    if (figmaUrl) {
+      window.open(figmaUrl, '_blank');
+    } else {
+      // 从侧边栏（/chat）进入详情页时带参数，标记来源
+      const isFromSidebar = window.location.pathname.startsWith('/chat');
+      router.push(`/portfolio/${slug}${isFromSidebar ? '?from=sidebar' : ''}`);
+    }
+  }, [router]);
+
   useEffect(() => {
     getPortfolioItems().then((data) => {
       setItems(data);
@@ -108,13 +118,7 @@ export default function PortfolioGrid() {
             viewport={{ once: true, margin: "-30px" }}
             transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
             className="h-full cursor-pointer"
-            onClick={() => {
-              if (item.figmaUrl) {
-                window.open(item.figmaUrl, '_blank');
-              } else {
-                router.push(`/portfolio/${item.slug}`);
-              }
-            }}
+            onClick={() => navToDetail(item.slug, item.figmaUrl)}
           >
             <div
               className="!p-0 !rounded-2xl !border-0 overflow-hidden h-full"

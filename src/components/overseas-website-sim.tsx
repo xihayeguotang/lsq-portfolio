@@ -63,10 +63,10 @@ export default function OverseasWebsiteSim() {
             <div className="flex items-center gap-2">
               <Image
                 src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/logo.svg"
-                alt="Cretapedia"
-                width={164}
+                alt="梁松泉"
+                width={160}
                 height={40}
-                className="w-auto h-10"
+                className="w-auto h-9"
               />
             </div>
 

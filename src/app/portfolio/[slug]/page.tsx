@@ -3,26 +3,29 @@
 import { use, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import Breadcrumb from "@/components/ui/breadcrumb";
 import HorizontalCarousel from "@/components/ui/horizontal-carousel";
 import ImageLightbox from "@/components/ui/image-lightbox";
-import ShopBrowseHero from "@/components/hero-section-shop-browse";
 import { Card } from "@/components/ui/card";
 import ProjectSection from "@/components/project-section";
-import OverseasWebsiteSim from "@/components/overseas-website-sim";
-import TvHero from "@/components/hero-section-demo-1";
-import ConversionRateChart from "@/components/conversion-rate-chart";
-import TvBackgroundGoals from "@/components/tv-background-goals";
-import TvDesignApproach from "@/components/tv-design-approach";
-import TvDataMetrics from "@/components/tv-data-metrics";
-import CarSystemData from "@/components/car-system-data";
-import HeroSectionCarSystem from "@/components/hero-section-car-system";
-import HeroSectionOverseasLocalization from "@/components/hero-section-overseas-localization";
-import OverseasDesignResearch from "@/components/overseas-design-research";
-import HeroSectionEcommerceGrowth from "@/components/hero-section-ecommerce-growth";
 import { findPortfolioItem, getPortfolioItems, type PortfolioItem } from "@/data/portfolio";
+
+// 各项目定制组件懒加载（每个页面只用到一个，避免 Three.js/tsparticles 打进首屏包）
+const ShopBrowseHero = dynamic(() => import("@/components/hero-section-shop-browse"), { ssr: false });
+const OverseasWebsiteSim = dynamic(() => import("@/components/overseas-website-sim"), { ssr: false });
+const TvHero = dynamic(() => import("@/components/hero-section-demo-1"), { ssr: false });
+const ConversionRateChart = dynamic(() => import("@/components/conversion-rate-chart"), { ssr: false });
+const TvBackgroundGoals = dynamic(() => import("@/components/tv-background-goals"), { ssr: false });
+const TvDesignApproach = dynamic(() => import("@/components/tv-design-approach"), { ssr: false });
+const TvDataMetrics = dynamic(() => import("@/components/tv-data-metrics"), { ssr: false });
+const CarSystemData = dynamic(() => import("@/components/car-system-data"), { ssr: false });
+const HeroSectionCarSystem = dynamic(() => import("@/components/hero-section-car-system"), { ssr: false });
+const HeroSectionOverseasLocalization = dynamic(() => import("@/components/hero-section-overseas-localization"), { ssr: false });
+const OverseasDesignResearch = dynamic(() => import("@/components/overseas-design-research"), { ssr: false });
+const HeroSectionEcommerceGrowth = dynamic(() => import("@/components/hero-section-ecommerce-growth"), { ssr: false });
 
 const shopBrowseHeroImages: { src: string; alt: string }[] = [
   { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/1.jpg", alt: "商店浏览图 1" },
@@ -68,6 +71,7 @@ function renderItemPage(
   setLightbox: (state: LightboxState) => void,
   prevItem: PortfolioItem | null = null,
   nextItem: PortfolioItem | null = null,
+  backUrl = "/portfolio",
 ) {
   const isShopBrowse = slug === "shop-browse";
   const isOverseasWebsite = slug === "overseas-website";
@@ -98,10 +102,10 @@ function renderItemPage(
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => router.push("/portfolio")}
-            className="flex items-center gap-1.5 cursor-pointer group"
+            onClick={() => router.push(backUrl)}
+            className="flex items-center gap-1.5 cursor-pointer"
             style={{ color: "var(--dbx-text-tertiary)" }}
-            title="返回作品集"
+            title="返回"
           >
             <svg
               width="18"
@@ -116,16 +120,10 @@ function renderItemPage(
               <path d="M19 12H5" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
-            <span
-              className="text-xs transition-all duration-200 opacity-0 group-hover:opacity-100 whitespace-nowrap"
-              style={{ color: "var(--dbx-text-tertiary)" }}
-            >
-              作品集
-            </span>
           </motion.button>
           <Breadcrumb
             items={[
-              { label: "作品集", href: "/portfolio" },
+              { label: "作品集", href: backUrl },
               { label: item.title },
             ]}
           />
@@ -656,8 +654,17 @@ export default function PortfolioDetailPage({
     load();
   }, [slug]);
 
+  // 读取 URL 参数判断来源，决定返回路径
+  const [backUrl, setBackUrl] = useState('/portfolio');
+  useEffect(() => {
+    // 直接用 window.location.search，比 useSearchParams() 可靠
+    if (window.location.search.includes('from=sidebar')) {
+      setBackUrl('/chat?view=portfolio');
+    }
+  }, []);
+
   if (loading) return <LoadingSkeleton />;
   if (!item) return <NotFound router={router} />;
 
-  return renderItemPage(item, slug, router, lightbox, setLightbox, prevItem, nextItem);
+  return renderItemPage(item, slug, router, lightbox, setLightbox, prevItem, nextItem, backUrl);
 }

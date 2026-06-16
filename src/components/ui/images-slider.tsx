@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 export const ImagesSlider = ({
   images,
@@ -21,72 +21,37 @@ export const ImagesSlider = ({
   direction?: "up" | "down";
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [loadedImages, setLoadedImages] = useState<string[]>([]);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [ready, setReady] = useState(false);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setCurrentIndex((prevIndex) =>
       prevIndex + 1 === images.length ? 0 : prevIndex + 1
     );
-  };
+  }, [images.length]);
 
-  const handlePrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex - 1 < 0 ? images.length - 1 : prevIndex - 1
-    );
-  };
-
+  // 预加载第一张后立即展示，其余图片在后台加载
   useEffect(() => {
-    loadImages();
-  }, []);
+    const img = new Image();
+    img.src = images[0];
+    img.onload = () => setReady(true);
+    img.onerror = () => setReady(true); // 即使加载失败也不阻塞
 
-  const loadImages = () => {
-    setLoading(true);
-    const loadPromises = images.map((image) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = image;
-        img.onload = () => resolve(image);
-        img.onerror = reject;
-      });
-    });
-
-    Promise.all(loadPromises)
-      .then((loadedImages) => {
-        setLoadedImages(loadedImages as string[]);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to load images", error);
-        setLoadFailed(true);
-        setLoading(false);
-      });
-  };
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight") {
-        handleNext();
-      } else if (event.key === "ArrowLeft") {
-        handlePrevious();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    // autoplay
-    let interval: any;
-    if (autoplay) {
-      interval = setInterval(() => {
-        handleNext();
-      }, 3000);
+    // 后台预加载其余图片
+    for (let i = 1; i < images.length; i++) {
+      const next = new Image();
+      next.src = images[i];
     }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      clearInterval(interval);
-    };
-  }, []);
+  // 自动轮播
+  useEffect(() => {
+    if (!autoplay || !ready) return;
+    const interval = setInterval(() => {
+      handleNext();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [autoplay, ready, handleNext]);
 
   const slideVariants = {
     initial: {
@@ -119,8 +84,6 @@ export const ImagesSlider = ({
     },
   };
 
-  const areImagesLoaded = loadedImages.length > 0;
-
   return (
     <div
       className={cn(
@@ -139,11 +102,11 @@ export const ImagesSlider = ({
         />
       )}
 
-      {areImagesLoaded && (
+      {ready && (
         <AnimatePresence>
           <motion.img
             key={currentIndex}
-            src={loadedImages[currentIndex]}
+            src={images[currentIndex]}
             initial="initial"
             animate="visible"
             exit={direction === "up" ? "upExit" : "downExit"}
