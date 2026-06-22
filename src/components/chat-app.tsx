@@ -84,17 +84,17 @@ const suggestions = [
 
 /* ============ Components ============ */
 
-function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activeView, onNavigate, isLoading }: { sessions: ChatSession[]; currentSessionId: string | null; onNewChat: () => void; onSelectSession: (id: string) => void; activeView: string; onNavigate: (view: string) => void; isLoading: boolean }) {
+function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activeView, onNavigate, isLoading, sidebarOpen, onClose }: { sessions: ChatSession[]; currentSessionId: string | null; onNewChat: () => void; onSelectSession: (id: string) => void; activeView: string; onNavigate: (view: string) => void; isLoading: boolean; sidebarOpen: boolean; onClose: () => void; }) {
   const router = useRouter();
   return (
-    <aside className="sidebar">
+    <aside className={"sidebar" + (sidebarOpen ? " open" : "")}>
       <div className="sidebar-logo">
         <span className="sidebar-logo-text">梁松泉</span>
       </div>
 
       <motion.div
         className="new-chat-btn"
-        onClick={onNewChat}
+        onClick={() => { onNewChat(); onClose(); }}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -112,7 +112,7 @@ function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activ
         <div
           className={"sidebar-nav-item" + (activeView === 'resume' ? ' active' : '')}
           title="个人简历"
-          onClick={() => onNavigate('resume')}
+          onClick={() => { onNavigate('resume'); onClose(); }}
         >
           <DotsIcon />
           <span>个人简历</span>
@@ -120,7 +120,7 @@ function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activ
         <div
           className={"sidebar-nav-item" + (activeView === 'portfolio' ? ' active' : '')}
           title="作品集"
-          onClick={() => onNavigate('portfolio')}
+          onClick={() => { onNavigate('portfolio'); onClose(); }}
         >
           <DotsIcon />
           <span>作品集</span>
@@ -137,7 +137,7 @@ function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activ
             key={session.id}
             className={"history-item" + (session.id === currentSessionId ? " active" : "")}
             title={session.title}
-            onClick={() => onSelectSession(session.id)}
+            onClick={() => { onSelectSession(session.id); onClose(); }}
           >
             <span className="history-item-text">{session.title}</span>
           </div>
@@ -149,7 +149,7 @@ function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activ
   );
 }
 
-function MainContent({ messages, isLoading, onSend, error }: { messages: UIMessage[]; isLoading: boolean; onSend: (text: string) => void; error?: Error }) {
+function MainContent({ messages, isLoading, onSend, error, onToggleSidebar }: { messages: UIMessage[]; isLoading: boolean; onSend: (text: string) => void; error?: Error; onToggleSidebar: () => void; }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom on new messages
@@ -200,7 +200,7 @@ function MainContent({ messages, isLoading, onSend, error }: { messages: UIMessa
     <div className="main-content h-full flex flex-col"
       style={{ background: "var(--dbx-bg-base)" }}
     >
-      <Header />
+      <Header onToggleSidebar={onToggleSidebar} />
       <div className={"chat-area" + (messages.length === 0 ? " empty-state" : "")}>
         {/* Messages scroll area */}
         <div className={"chat-scroll" + (messages.length > 0 ? " has-messages" : "")} ref={scrollRef}>
@@ -350,7 +350,7 @@ function MainContent({ messages, isLoading, onSend, error }: { messages: UIMessa
   );
 }
 
-function Header() {
+function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   return (
     <motion.div
       className="main-header"
@@ -359,6 +359,9 @@ function Header() {
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <div className="header-left">
+        <button className="header-icon-btn mobile-menu-btn" onClick={onToggleSidebar} aria-label="展开菜单">
+          <MenuIcon />
+        </button>
       </div>
       <div className="header-center">
         <span className="header-title">新对话</span>
@@ -592,6 +595,7 @@ export default function ChatApp() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [view, setView] = useState<'chat' | 'portfolio' | 'resume'>('chat');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const currentSessionIdRef = useRef<string | null>(null);
 
   const { messages, setMessages, sendMessage, status, error, stop } = useChat({
@@ -768,11 +772,29 @@ export default function ChatApp() {
           }
         }}
         isLoading={isLoading}
+        sidebarOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      {/* Mobile sidebar backdrop */}
+      <div
+        className={"sidebar-backdrop" + (sidebarOpen ? " open" : "")}
+        onClick={() => setSidebarOpen(false)}
       />
       {view === 'chat' ? (
-        <MainContent messages={messages} isLoading={isLoading} onSend={onSend} error={error} />
+        <MainContent messages={messages} isLoading={isLoading} onSend={onSend} error={error} onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
       ) : view === 'portfolio' ? (
-        <div className="flex-1 flex flex-col overflow-hidden portfolio-content min-h-0" style={{ background: "var(--dbx-bg-base)" }}>
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0" style={{ background: "var(--dbx-bg-base)" }}>
+          <div className="main-header">
+            <div className="header-left">
+              <button className="header-icon-btn mobile-menu-btn" onClick={() => setSidebarOpen(prev => !prev)} aria-label="展开菜单">
+                <MenuIcon />
+              </button>
+            </div>
+            <div className="header-center">
+              <span className="header-title">作品集</span>
+            </div>
+            <div className="header-right" />
+          </div>
           <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 pb-8">
             <div style={{ paddingTop: '32px' }}>
               <PortfolioGrid />
@@ -781,6 +803,17 @@ export default function ChatApp() {
         </div>
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden min-h-0" style={{ background: "var(--dbx-bg-base)" }}>
+          <div className="main-header">
+            <div className="header-left">
+              <button className="header-icon-btn mobile-menu-btn" onClick={() => setSidebarOpen(prev => !prev)} aria-label="展开菜单">
+                <MenuIcon />
+              </button>
+            </div>
+            <div className="header-center">
+              <span className="header-title">个人简历</span>
+            </div>
+            <div className="header-right" />
+          </div>
           <div className="flex-1 overflow-y-auto min-h-0">
             <ResumeContent />
           </div>

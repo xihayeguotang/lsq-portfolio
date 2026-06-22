@@ -20,8 +20,18 @@ export async function POST(request: Request) {
       return new Response("messages 字段缺失", { status: 400 });
     }
 
-    // Convert UI messages (with id, parts, etc.) to model messages
-    const modelMessages = await convertToModelMessages(messages);
+    // Ensure messages have the `parts` field (AI SDK v6 format).
+    // Old persisted messages from localStorage may lack it.
+    const normalizedMessages = messages.map((m: Record<string, unknown>) => {
+      if (m.parts) return m;
+      const content = (m.content as string) ?? "";
+      return {
+        ...m,
+        parts: [{ type: "text", text: content }],
+      };
+    });
+
+    const modelMessages = await convertToModelMessages(normalizedMessages);
 
     const result = streamText({
       model: deepseek("deepseek-chat"),
