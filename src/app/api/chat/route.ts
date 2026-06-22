@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       };
     });
 
-    const modelMessages = await convertToModelMessages(normalizedMessages);
+    const modelMessages = await convertToModelMessages(normalizedMessages as Parameters<typeof convertToModelMessages>[0]);
 
     const result = streamText({
       model: deepseek("deepseek-chat"),
