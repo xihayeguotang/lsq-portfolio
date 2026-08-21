@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
+import { ArrowDown2, ArrowRight } from "iconsax-react";
 
 const navLinks: { label: string; active?: boolean; dropdown?: string[] }[] = [
   { label: "Home", active: true },
@@ -62,7 +63,7 @@ export default function OverseasWebsiteSim() {
             {/* Logo */}
             <div className="flex items-center gap-2">
               <Image
-                src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/logo.svg"
+                src="https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/assets/logo.svg"
                 alt="梁松泉"
                 width={160}
                 height={40}
@@ -88,19 +89,7 @@ export default function OverseasWebsiteSim() {
                   >
                     {link.label}
                     {link.dropdown && (
-                      <svg
-                        className="inline-block ml-1 w-3 h-3"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <ArrowDown2 size={12} color="currentColor" className="inline-block ml-1" />
                     )}
                   </button>
 
@@ -173,9 +162,7 @@ export default function OverseasWebsiteSim() {
                   transition={{ type: "spring", stiffness: 300, damping: 10 }}
                 >
                   <span>Start it for Free</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
+                  <ArrowRight size={20} color="currentColor" />
                 </motion.div>
               </button>
             </div>

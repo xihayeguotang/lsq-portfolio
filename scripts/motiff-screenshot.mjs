@@ -1,7 +1,7 @@
 import { chromium } from "playwright-core";
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-await page.goto("https://beta.miaoduo.com/file/6qoAY0S6qkIget7PbWY825c?nodeId=202%3A2309&type=design", {
+await page.goto("https://beta.miaoduo.com/file/kyA440a8UmIOIcVKLknS72N?nodeId=0%3A1&type=design", {
   waitUntil: "networkidle",
   timeout: 30000,
 });

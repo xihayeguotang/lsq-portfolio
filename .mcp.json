@@ -13,6 +13,16 @@
       "env": {
         "MIAODUO_TOKEN": "0zXS22UR4hAtALxJwk7NvJd9SSl7bLCe"
       }
+    },
+    "minimax": {
+      "command": "npx",
+      "args": ["-y", "minimax-mcp-js"],
+      "env": {
+        "MINIMAX_API_HOST": "https://api.minimaxi.com",
+        "MINIMAX_API_KEY": "sk-api-fQk0hK5qH-0jlXYNi6tc2eOuWkaymcFDySYdWZ8__eU-OpRCzKRl6U7C8gs76oNpZdkkGaJOGzK6MY6m7_i58JZgfDrrVe0nPdE55cffJhqrX9u-tjSiQW4",
+        "MINIMAX_MCP_BASE_PATH": "/Users/liangsongquan/Documents/trae_projects/zuopinji/public/generated",
+        "MINIMAX_RESOURCE_MODE": "url"
+      }
     }
   }
 }

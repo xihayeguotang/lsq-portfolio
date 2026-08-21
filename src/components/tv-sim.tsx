@@ -329,7 +329,7 @@ export default function TvSim() {
                         right: 3,
                         bottom: 0,
                         backgroundImage:
-                          "url('https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/banner-new.jpg')",
+                          "url('https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/assets/banner-new.jpg')",
                       }}
                     />
                   </div>

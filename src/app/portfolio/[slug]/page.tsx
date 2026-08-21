@@ -6,12 +6,14 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
+import { ArrowLeft, ArrowRight, Export } from "iconsax-react";
 import Breadcrumb from "@/components/ui/breadcrumb";
 import HorizontalCarousel from "@/components/ui/horizontal-carousel";
 import ImageLightbox from "@/components/ui/image-lightbox";
 import { Card } from "@/components/ui/card";
 import ProjectSection from "@/components/project-section";
 import { findPortfolioItem, getPortfolioItems, type PortfolioItem } from "@/data/portfolio";
+import { PortfolioExplanationButton } from "@/components/portfolio-explanation-button";
 
 // 各项目定制组件懒加载（每个页面只用到一个，避免 Three.js/tsparticles 打进首屏包）
 const ShopBrowseHero = dynamic(() => import("@/components/hero-section-shop-browse"), { ssr: false });
@@ -28,21 +30,21 @@ const OverseasDesignResearch = dynamic(() => import("@/components/overseas-desig
 const HeroSectionEcommerceGrowth = dynamic(() => import("@/components/hero-section-ecommerce-growth"), { ssr: false });
 
 const shopBrowseHeroImages: { src: string; alt: string }[] = [
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/1.jpg", alt: "商店浏览图 1" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/2.jpg", alt: "商店浏览图 2" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/3.jpg", alt: "商店浏览图 3" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/4.jpg", alt: "商店浏览图 4" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/5.jpg", alt: "商店浏览图 5" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike/6.jpg", alt: "商店浏览图 6" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/1.jpg", alt: "商店浏览图 1" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/2.jpg", alt: "商店浏览图 2" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/3.jpg", alt: "商店浏览图 3" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/4.jpg", alt: "商店浏览图 4" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/5.jpg", alt: "商店浏览图 5" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/6.jpg", alt: "商店浏览图 6" },
 ];
 
 const shopBrowseHDImages: { src: string; alt: string }[] = [
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/1.jpg", alt: "HD 浏览图 1" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/2.jpg", alt: "HD 浏览图 2" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/3.jpg", alt: "HD 浏览图 3" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/4.jpg", alt: "HD 浏览图 4" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/5.jpg", alt: "HD 浏览图 5" },
-  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/zebra-baike-hd/6.jpg", alt: "HD 浏览图 6" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/hd/1.jpg", alt: "HD 浏览图 1" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/hd/2.jpg", alt: "HD 浏览图 2" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/hd/3.jpg", alt: "HD 浏览图 3" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/hd/4.jpg", alt: "HD 浏览图 4" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/hd/5.jpg", alt: "HD 浏览图 5" },
+  { src: "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/projects/shop-browse/hd/6.jpg", alt: "HD 浏览图 6" },
 ];
 
 const myFamilyImages: { src: string; alt: string }[] = Array.from(
@@ -107,25 +109,21 @@ function renderItemPage(
             style={{ color: "var(--dbx-text-tertiary)" }}
             title="返回"
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M19 12H5" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
+            <ArrowLeft size={18} color="currentColor" />
           </motion.button>
           <Breadcrumb
             items={[
               { label: "作品集", href: backUrl },
               { label: item.title },
             ]}
+          />
+        </div>
+
+        {/* 页内「听讲解」：面试官留在项目页即点即听 */}
+        <div className="flex items-center gap-3">
+          <PortfolioExplanationButton
+            slug={slug}
+            fallback={`《${item.title}》这个项目。${item.description}`}
           />
         </div>
       </motion.div>
@@ -410,16 +408,9 @@ function renderItemPage(
                   color: "var(--dbx-text-primary)",
                 }}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                  <polyline points="15 3 21 3 21 9" />
-                  <line x1="10" x2="21" y1="14" y2="3" />
-                </svg>
+                <Export size={20} color="currentColor" />
                 <span className="flex-1 text-sm">在浏览器中打开设计稿</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M7 17L17 7" />
-                  <path d="M7 7h10v10" />
-                </svg>
+                <Export size={16} color="currentColor" />
               </motion.a>
             </motion.section>
           )}
@@ -499,14 +490,12 @@ function renderItemPage(
                   href={`/portfolio/${prevItem.slug}`}
                   className="flex items-center gap-2 p-2.5 rounded-xl transition-all duration-200 group w-auto bg-[var(--dbx-bg-float)] border border-[var(--dbx-border-light)] hover:bg-white/[0.1] hover:border-white/25"
                 >
-                  <svg
-                    width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  <ArrowLeft
+                    size={16}
+                    color="currentColor"
                     className="flex-shrink-0 transition-transform duration-200 group-hover:-translate-x-0.5"
                     style={{ color: "var(--dbx-text-tertiary)" }}
-                  >
-                    <path d="M19 12H5" />
-                    <polyline points="12 19 5 12 12 5" />
-                  </svg>
+                  />
                   <div className="min-w-0">
                     <div className="text-xs" style={{ color: "var(--dbx-text-tertiary)" }}>
                       上一个
@@ -531,14 +520,12 @@ function renderItemPage(
                       {nextItem.title}
                     </div>
                   </div>
-                  <svg
-                    width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  <ArrowRight
+                    size={16}
+                    color="currentColor"
                     className="flex-shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
                     style={{ color: "var(--dbx-text-tertiary)" }}
-                  >
-                    <path d="M5 12h14" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
+                  />
                 </Link>
               )}
             </div>

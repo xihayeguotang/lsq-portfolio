@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
+import { ArrowRight2 } from "iconsax-react";
 
 interface BreadcrumbItem {
   label: string;
@@ -23,19 +24,11 @@ export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
         return (
           <span key={i} className="flex items-center gap-1.5">
             {i > 0 && (
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              <ArrowRight2
+                size={14}
+                color="currentColor"
                 style={{ color: "var(--dbx-text-tertiary)" }}
-              >
-                <path d="M9 18L15 12L9 6" />
-              </svg>
+              />
             )}
             {item.href && !isLast ? (
               <button

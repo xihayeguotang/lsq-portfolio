@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import { getPortfolioItems } from "@/data/portfolio";
 import { findWorkExperiences } from "@/data/work-experiences";
+import { findPortfolioDetail } from "@/data/portfolio-details";
 
 // 工作经历数据已迁移到 COS: WorkExperience/work-experiences.json
 // 由 getWorkExperiences() / findWorkExperiences() 异步加载
@@ -41,7 +42,8 @@ export const chatTools = {
   }),
 
   getWorkExperience: tool({
-    description: "获取工作经历，可按公司名称筛选",
+    description:
+      "获取工作经历及项目落地成果数据（含激活设备数、转化率、GMV等），可按公司名称筛选；讲解具体项目时务必调用以获取真实数据",
     inputSchema: z.object({
       company: z.string().optional().describe("公司名称关键字，留空则返回全部"),
     }),
@@ -50,14 +52,32 @@ export const chatTools = {
     },
   }),
 
+  getPortfolioDetail: tool({
+    description:
+      "根据项目 slug 获取项目详情：项目背景、设计目标、设计思路（approach）、关键指标数据（metrics）等。讲解某个具体项目时，在 portfolioSearch 拿到 slug 后调用此工具获取深入文案",
+    inputSchema: z.object({
+      slug: z
+        .string()
+        .describe(
+          '项目 slug，例如 "baike-ecommerce"、"tv"、"car-system"、"overseas-localization"、"shop-browse" 等'
+        ),
+    }),
+    execute: async ({ slug }) => {
+      const detail = await findPortfolioDetail(slug);
+      if (!detail) {
+        return { found: false, message: `未找到 slug 为 "${slug}" 的项目详情` };
+      }
+      return { found: true, detail };
+    },
+  }),
+
   getResumeSummary: tool({
-    description: "获取简历概要信息：姓名、当前职位、经验年限、设计理念",
+    description: "获取简历概要信息：姓名、当前职位、设计理念",
     inputSchema: z.object({}),
     execute: async () => ({
       name: "梁松泉",
       currentRole: "UI 设计师",
       currentCompany: "猿辅导（斑马）",
-      totalExperience: "9年+",
       designPhilosophy: [
         "用户导向 — 让每个设计决策都有据可依",
         "系统思维 — 用系统化方式构建设计，确保多端体验一致",

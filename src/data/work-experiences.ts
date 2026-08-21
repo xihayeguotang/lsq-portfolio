@@ -5,7 +5,11 @@ export interface WorkExperience {
   highlights: string[];
 }
 
-const WORK_URL = "/api/work-experiences";
+// 客户端走同源 API route（避免 COS CORS 拦截）；服务端（AI 工具）直连 COS（route handler 内相对路径 fetch 不可用）
+const WORK_URL =
+  typeof window === "undefined"
+    ? "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/WorkExperience/work-experiences.json"
+    : "/api/work-experiences";
 
 let cache: WorkExperience[] | null = null;
 

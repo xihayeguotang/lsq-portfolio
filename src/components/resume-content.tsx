@@ -94,7 +94,7 @@ export default function ResumeContent() {
               className="text-base mt-1.5"
               style={{ color: "var(--dbx-text-secondary)" }}
             >
-              UI 设计师 · 9 年以上产品设计经验
+              UI 设计师 · 11 年以上产品设计经验
             </motion.p>
 
             <motion.p

@@ -3,15 +3,25 @@
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { ImagesSlider } from "@/components/ui/images-slider";
+import { IntroCard } from "@/components/intro-card";
+import { warmupAudio } from "@/lib/audio-context";
 
 export default function LandingPage() {
   const router = useRouter();
 
   const images = [
-    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/hero-bg.jpg",
-    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/hero-bg-2.jpg",
-    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/hero-bg-3.jpg",
+    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/assets/hero-bg.jpg",
+    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/assets/hero-bg-2.jpg",
+    "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/assets/hero-bg-3.jpg",
   ];
+
+  function goListen() {
+    warmupAudio(); // 用户手势内预热共享音频,确保跳转后自动朗读不被浏览器静音
+    router.push("/chat?intro=listen");
+  }
+  function goBrowse() {
+    router.push("/portfolio");
+  }
 
   return (
     <ImagesSlider className="w-full h-full" images={images}>
@@ -27,19 +37,9 @@ export default function LandingPage() {
         <p className="text-white/60 text-[28px] max-w-xl mt-4 text-center">
           UI Designer | Visual &amp; Interaction Design
         </p>
-        <motion.button
-          onClick={() => router.push("/chat")}
-          className="px-8 py-3 border-none text-white mx-auto text-center rounded-full relative mt-14 cursor-pointer font-medium shadow-lg"
-          style={{
-            background: "linear-gradient(135deg, #1a1a1a, #333333)",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
-          }}
-          whileHover={{ scale: 1.05, boxShadow: "0 6px 32px rgba(0,0,0,0.5)" }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        >
-          <span className="text-lg tracking-wide">查看作品</span>
-        </motion.button>
+        <div className="w-full max-w-[440px] mt-10">
+          <IntroCard onListen={goListen} onBrowse={goBrowse} />
+        </div>
       </motion.div>
     </ImagesSlider>
   );

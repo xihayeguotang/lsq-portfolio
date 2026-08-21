@@ -268,9 +268,20 @@
 .header-icon-btn:hover {
   background: var(--dbx-fill-trans-10);
 }
+.header-icon-btn.active {
+  color: var(--dbx-accent);
+  background: var(--dbx-fill-trans-10);
+}
 .header-icon-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+}
+/* 自动朗读开关：颜色对齐详情页「听讲解」喇叭（secondary）；开/关靠图标形态区分 */
+.header-icon-btn.speaker-btn {
+  color: var(--dbx-text-secondary);
+}
+.header-icon-btn.speaker-btn.active {
+  color: var(--dbx-text-secondary);
 }
 .header-center {
   flex: 1;
@@ -375,6 +386,101 @@
 .suggestion-card:hover {
   background: var(--dbx-fill-trans-10);
   border-color: var(--dbx-border-light);
+}
+
+/* ── 追问引导 chips ── */
+.followup-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.followup-label {
+  font-size: 12px;
+  color: var(--dbx-text-tertiary);
+  margin-right: 2px;
+}
+.followup-chip {
+  min-height: 32px;
+  padding: 6px 14px;
+  font-size: 13px;
+  line-height: 18px;
+  border-radius: 999px;
+}
+
+/* ── 打字机 ── */
+.typing-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: pointer;
+}
+.typewriter-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--dbx-text-secondary);
+  animation: caretBlink 0.9s step-end infinite;
+}
+@keyframes caretBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ── 首次引导卡 ── */
+.intro-card {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto 8px;
+}
+.intro-card-actions {
+  gap: 12px;
+  display: flex;
+  flex-direction: row;
+}
+.intro-card-btn {
+  flex: 1 1 0;
+  color: var(--dbx-text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--dbx-radius-full);
+  background: #333333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.intro-card-btn:hover {
+  color: #fff;
+  background: #3d3d3d;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.intro-card-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.intro-card-btn-primary {
+  color: #fff;
+  font-weight: 600;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+.intro-card-btn-primary:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #5a5aef, #7c4ff0);
 }
 
 /* ── Messages ── */

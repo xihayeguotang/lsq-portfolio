@@ -19,7 +19,11 @@ export interface PortfolioItem {
   figmaUrl?: string;
 }
 
-const PORTFOLIO_URL = "/api/portfolio";
+// 客户端走同源 API route（避免 COS CORS 拦截）；服务端（AI 工具）直连 COS（route handler 内相对路径 fetch 不可用）
+const PORTFOLIO_URL =
+  typeof window === "undefined"
+    ? "https://liangsq-1440954703.cos.ap-beijing.myqcloud.com/WorkExperience/portfolio-items.json"
+    : "/api/portfolio";
 
 let cache: PortfolioItem[] | null = null;
 
@@ -33,7 +37,9 @@ async function loadPortfolio(): Promise<PortfolioItem[]> {
     throw new Error(`加载作品集数据失败: ${res.status}`);
   }
 
-  const items: PortfolioItem[] = await res.json();
+  const items: PortfolioItem[] = (await res.json()).filter(
+    (item: PortfolioItem) => item.slug !== "component-library"
+  );
 
   // 补全代码内计算的字段
   for (const item of items) {

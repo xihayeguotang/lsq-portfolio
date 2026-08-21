@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useState, useCallback } from "react";
+import { Call, Sms } from "iconsax-react";
 
 export default function BusinessCard() {
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
@@ -77,9 +78,7 @@ export default function BusinessCard() {
             className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs"
             style={{ color: "var(--dbx-text-secondary)" }}
           >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="flex-shrink-0">
-              <path d="M2.5 1.5L3.5 0.9C3.8 0.7 4.1 0.8 4.3 1.1L5.2 3.1C5.4 3.4 5.3 3.8 5 4L4.2 4.6C4.6 5.5 5.2 6.3 6 7.1C6.8 7.9 7.7 8.5 8.6 8.8L9.2 8C9.4 7.7 9.8 7.6 10.1 7.8L12.1 8.7C12.4 8.9 12.5 9.2 12.3 9.5L11.8 10.5C11.6 10.8 11.2 11 10.9 10.9C8.6 10.1 6.4 8.5 4.9 6.4C4.1 5.3 3.6 4.2 3.2 3.1C3.1 2.8 3.2 2.4 3.5 2.2L2.5 1.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <Call size={13} color="currentColor" className="flex-shrink-0" />
             <span>18500540665</span>
           </div>
           <a
@@ -88,10 +87,7 @@ export default function BusinessCard() {
             style={{ color: "var(--dbx-text-secondary)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="flex-shrink-0">
-              <rect x="1" y="2.5" width="11" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.2"/>
-              <path d="M1 3.5L6.5 7.5L12 3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <Sms size={13} color="currentColor" className="flex-shrink-0" />
             <span>499980564@qq.com</span>
           </a>
         </div>

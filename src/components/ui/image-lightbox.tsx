@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import { useEffect } from "react";
+import { CloseCircle, ArrowLeft2, ArrowRight2 } from "iconsax-react";
 
 interface LightboxImage {
   src: string;
@@ -55,9 +56,7 @@ export default function ImageLightbox({
           onClick={onClose}
           className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
+          <CloseCircle size={20} color="white" />
         </button>
 
         {/* Counter */}
@@ -74,9 +73,7 @@ export default function ImageLightbox({
             }}
             className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18L9 12L15 6" />
-            </svg>
+            <ArrowLeft2 size={20} color="white" />
           </button>
         )}
 
@@ -112,9 +109,7 @@ export default function ImageLightbox({
             }}
             className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18L15 12L9 6" />
-            </svg>
+            <ArrowRight2 size={20} color="white" />
           </button>
         )}
       </motion.div>

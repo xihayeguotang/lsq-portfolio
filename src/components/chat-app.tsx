@@ -4,9 +4,21 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion } from "motion/react";
+import {
+  Add,
+  More,
+  HambergerMenu,
+  Stop,
+  VolumeHigh,
+  VolumeSlash,
+} from "iconsax-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
+import { useSpeech } from "@/hooks/use-speech";
+import { useTypewriter } from "@/hooks/use-typewriter";
+import { speakText, stripMarkdown } from "@/lib/speech-utils";
+import { getSharedAudioContext } from "@/lib/audio-context";
 import BusinessCard from "@/components/business-card";
 import { ImagesBadge } from "@/components/ui/images-badge";
 
@@ -23,37 +35,67 @@ type ChatSession = {
 /* ============ SVG Icons ============ */
 
 function PlusIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M10 4V16M4 10H16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
+  return <Add size={20} color="currentColor" aria-hidden />;
 }
 
 function DotsIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <circle cx="10" cy="5.5" r="1" fill="currentColor" />
-      <circle cx="10" cy="10" r="1" fill="currentColor" />
-      <circle cx="10" cy="14.5" r="1" fill="currentColor" />
-    </svg>
-  );
+  return <More size={20} color="currentColor" aria-hidden />;
 }
 
 function MenuIcon() {
+  return <HambergerMenu size={18} color="currentColor" aria-hidden />;
+}
+
+function StopIcon() {
+  return <Stop size={16} color="currentColor" aria-hidden />;
+}
+
+function SpeakIcon() {
+  return <VolumeHigh size={16} color="currentColor" aria-hidden />;
+}
+
+/** 每条回复下的朗读按钮:未播放=朗读,正在播这条=停止播放(带状态色) */
+function SpeakMessageButton({ speaking, onSpeak }: { speaking: boolean; onSpeak: () => void }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M3 4.5H15M3 9H15M3 13.5H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
+    <button
+      className="speak-message-btn"
+      title={speaking ? "停止播放本条回复" : "朗读本条回复"}
+      aria-label={speaking ? "停止播放本条回复" : "朗读本条回复"}
+      onClick={onSpeak}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        marginTop: 8,
+        padding: "3px 8px",
+        fontSize: 11,
+        lineHeight: 1,
+        color: speaking ? "var(--dbx-text-primary)" : "var(--dbx-text-tertiary)",
+        background: speaking ? "var(--dbx-fill-trans-10)" : "transparent",
+        border: "none",
+        borderRadius: "var(--dbx-radius-sm)",
+        cursor: "pointer",
+        transition: "color 0.2s, background 0.2s",
+      }}
+      onMouseEnter={(e) => {
+        if (!speaking) (e.currentTarget as HTMLButtonElement).style.color = "var(--dbx-text-secondary)";
+      }}
+      onMouseLeave={(e) => {
+        if (!speaking) (e.currentTarget as HTMLButtonElement).style.color = "var(--dbx-text-tertiary)";
+      }}
+    >
+      {speaking ? <StopIcon /> : <SpeakIcon />}
+      <span>{speaking ? "停止播放" : "朗读"}</span>
+    </button>
   );
 }
 
-function HistoryIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M9 5V9.5L11.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
+/** 右上角自动播报开关图标:on=喇叭+声波,off=喇叭+斜杠 */
+function SpeakerIcon({ on }: { on: boolean }) {
+  return on ? (
+    <VolumeHigh size={16} color="currentColor" aria-hidden />
+  ) : (
+    <VolumeSlash size={16} color="currentColor" aria-hidden />
   );
 }
 
@@ -77,10 +119,18 @@ const navItems = [
 ];
 
 const suggestions = [
-  "介绍一下你的工作经历",
-  "斑马百科全生态产品是如何设计的",
-  "你搭建的设计体系如何落地到多端产品",
+  "做个简单的自我介绍吧",
+  "你最有代表性的项目是哪个？为什么这么觉得？",
+  "你在项目里一般怎么和产品、研发协作？",
 ];
+
+/* ============ 首次引导文案 ============ */
+
+/** 「听我介绍」入口：一段有温度的自我介绍（插入对话 + TTS 朗读） */
+const INTRO_SCRIPT = `你好，我是梁松泉，一名 UI 设计师，目前在猿辅导做设计。很荣幸你能花时间了解我的作品集。我擅长把复杂的业务需求，转化为清晰、好用又有质感的产品体验，做过车载系统、大屏电视、电商增长这些不同类型的产品设计。你可以顺着往下看我的作品，也可以直接问我任何问题，比如某个项目是怎么思考的、我的设计体系怎么落地，或者我平时怎么和研发、产品协作。想从哪里开始聊？`;
+
+/** 主动开场白：直接进入 /chat(无参数、无历史)时插入的短问候,带互动引导 */
+const OPENING_SCRIPT = `你好，我是梁松泉，一名 UI 设计师。想了解我的工作经历、某个项目是怎么从零到一落地的，或者我在设计体系和研发协作上的思考，都可以直接问我。比如说，你是想先听一段我的整体介绍，还是想直奔某个具体的项目？`;
 
 /* ============ Components ============ */
 
@@ -149,7 +199,74 @@ function Sidebar({ sessions, currentSessionId, onNewChat, onSelectSession, activ
   );
 }
 
-function MainContent({ messages, isLoading, onSend, error, onToggleSidebar }: { messages: UIMessage[]; isLoading: boolean; onSend: (text: string) => void; error?: Error; onToggleSidebar: () => void; }) {
+/* ============ 打字机 / 思考指示 ============ */
+
+/** 思考阶段轮播文案(纯文案,不读 reasoning 内容) */
+const THINKING_LABELS = ["正在分析你的问题…", "正在回忆项目细节…", "正在核对数据…"];
+
+/** 消息正文渲染:流式(typing)时用打字机逐字显示,流结束后切 Markdown 保真 */
+function AssistantText({ text, typing }: { text: string; typing: boolean }) {
+  const { text: shown, done, skip } = useTypewriter(text, typing);
+  if (typing && !done) {
+    return (
+      <div className="markdown-body typing-text" onClick={skip} title="点击显示全部">
+        {shown}
+        <span className="typewriter-caret" />
+      </div>
+    );
+  }
+  return <MarkdownRenderer content={text} />;
+}
+
+/** 思考中的打字条 + 轮播文案(仅在 AI 尚未输出正文时显示) */
+function ThinkingIndicator() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setIdx((i) => (i + 1) % THINKING_LABELS.length), 2500);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="flex items-center gap-2.5">
+      {/* Typing bars */}
+      <div className="flex items-center gap-[3px] h-5">
+        {[0, 1, 2].map((i) => (
+          <motion.span
+            key={i}
+            className="w-[3px] rounded-full"
+            style={{ background: "var(--dbx-text-tertiary)" }}
+            animate={{ height: ["6px", "16px", "6px"] }}
+            transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+          />
+        ))}
+      </div>
+      <span className="text-xs" style={{ color: "var(--dbx-text-tertiary)" }}>
+        {THINKING_LABELS[idx]}
+      </span>
+    </div>
+  );
+}
+
+function MainContent({
+  messages,
+  isLoading,
+  onSend,
+  error,
+  onToggleSidebar,
+  onSpeakMessage,
+  speakingMsgId,
+  autoSpeak,
+  onToggleAutoSpeak,
+}: {
+  messages: UIMessage[];
+  isLoading: boolean;
+  onSend: (text: string) => void;
+  error?: Error;
+  onToggleSidebar: () => void;
+  onSpeakMessage: (msg: UIMessage) => void;
+  speakingMsgId: string | null;
+  autoSpeak: boolean;
+  onToggleAutoSpeak: () => void;
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom on new messages
@@ -196,11 +313,22 @@ function MainContent({ messages, isLoading, onSend, error, onToggleSidebar }: { 
     return ["介绍一下你的工作经历", "斑马百科项目做了什么"];
   }
 
+  // 最后一条 assistant 消息正在流式输出正文 → 该条走打字机渲染
+  const lastMsg = messages[messages.length - 1];
+  const lastIsAssistantStreaming =
+    isLoading &&
+    lastMsg?.role === "assistant" &&
+    getMessageText(lastMsg).length > 0;
+
   return (
     <div className="main-content h-full flex flex-col"
       style={{ background: "var(--dbx-bg-base)" }}
     >
-      <Header onToggleSidebar={onToggleSidebar} />
+      <Header
+        onToggleSidebar={onToggleSidebar}
+        autoSpeak={autoSpeak}
+        onToggleAutoSpeak={onToggleAutoSpeak}
+      />
       <div className={"chat-area" + (messages.length === 0 ? " empty-state" : "")}>
         {/* Messages scroll area */}
         <div className={"chat-scroll" + (messages.length > 0 ? " has-messages" : "")} ref={scrollRef}>
@@ -216,9 +344,14 @@ function MainContent({ messages, isLoading, onSend, error, onToggleSidebar }: { 
                   <div className="message-content">
                     {msg.role === "assistant" ? (
                       <>
-                        <div className="markdown-body">
-                          <MarkdownRenderer content={getMessageText(msg)} />
-                        </div>
+                        <AssistantText
+                          text={getMessageText(msg)}
+                          typing={lastIsAssistantStreaming && i === messages.length - 1}
+                        />
+                        <SpeakMessageButton
+                          speaking={speakingMsgId === msg.id}
+                          onSpeak={() => onSpeakMessage(msg)}
+                        />
                       </>
                     ) : (
                       getMessageText(msg)
@@ -226,7 +359,32 @@ function MainContent({ messages, isLoading, onSend, error, onToggleSidebar }: { 
                   </div>
                 </motion.div>
               ))}
-              {isLoading && (
+              {!isLoading &&
+                messages.length > 0 &&
+                (() => {
+                  const last = messages[messages.length - 1];
+                  if (last?.role !== "assistant") return null;
+                  const followUps = getFollowUps(getMessageText(last));
+                  if (!followUps.length) return null;
+                  return (
+                    <div className="followup-chips" key={`fu-${last.id}-${messages.length}`}>
+                      <span className="followup-label">你可以接着问：</span>
+                      {followUps.map((q) => (
+                        <motion.button
+                          key={q}
+                          className="suggestion-card followup-chip"
+                          onClick={() => onSend(q)}
+                          whileHover={{ scale: 1.02, y: -2 }}
+                          whileTap={{ scale: 0.98 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        >
+                          {q}
+                        </motion.button>
+                      ))}
+                    </div>
+                  );
+                })()}
+              {isLoading && !lastIsAssistantStreaming && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -234,33 +392,7 @@ function MainContent({ messages, isLoading, onSend, error, onToggleSidebar }: { 
                   className="message message-assistant"
                 >
                   <div className="message-content">
-                    <div className="flex items-center gap-2.5">
-                      {/* Typing bars */}
-                      <div className="flex items-center gap-[3px] h-5">
-                        {[0, 1, 2].map((i) => (
-                          <motion.span
-                            key={i}
-                            className="w-[3px] rounded-full"
-                            style={{ background: "var(--dbx-text-tertiary)" }}
-                            animate={{
-                              height: ["6px", "16px", "6px"],
-                            }}
-                            transition={{
-                              duration: 0.8,
-                              repeat: Infinity,
-                              delay: i * 0.15,
-                              ease: "easeInOut",
-                            }}
-                          />
-                        ))}
-                      </div>
-                      <span
-                        className="text-xs"
-                        style={{ color: "var(--dbx-text-tertiary)" }}
-                      >
-                        正在思考...
-                      </span>
-                    </div>
+                    <ThinkingIndicator />
                   </div>
                 </motion.div>
               )}
@@ -350,7 +482,15 @@ function MainContent({ messages, isLoading, onSend, error, onToggleSidebar }: { 
   );
 }
 
-function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+function Header({
+  onToggleSidebar,
+  autoSpeak,
+  onToggleAutoSpeak,
+}: {
+  onToggleSidebar: () => void;
+  autoSpeak: boolean;
+  onToggleAutoSpeak: () => void;
+}) {
   return (
     <motion.div
       className="main-header"
@@ -373,6 +513,14 @@ function Header({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         />
       </div>
       <div className="header-right">
+        <button
+          className={"header-icon-btn speaker-btn" + (autoSpeak ? " active" : "")}
+          title={autoSpeak ? "自动播报已开启，点击关闭" : "自动播报已关闭，点击开启"}
+          aria-label="自动播报开关"
+          onClick={onToggleAutoSpeak}
+        >
+          <SpeakerIcon on={autoSpeak} />
+        </button>
       </div>
     </motion.div>
   );
@@ -566,9 +714,9 @@ function ChatInput({ onSend, isLoading }: { onSend: (text: string) => void; isLo
             />
             {!hasText && !animating && (
             <div className="input-guide">
-              <span className="input-guide-chip" onClick={() => handleGuideClick("介绍一下你的工作经历")}>介绍一下你的工作经历</span>
-              <span className="input-guide-chip" onClick={() => handleGuideClick("展示项目案例")}>展示项目案例</span>
-              <span className="input-guide-chip" onClick={() => handleGuideClick("你的设计理念")}>你的设计理念</span>
+              {suggestions.map((text) => (
+                <span key={text} className="input-guide-chip" onClick={() => handleGuideClick(text)}>{text}</span>
+              ))}
             </div>
             )}
           </div>
@@ -577,9 +725,13 @@ function ChatInput({ onSend, isLoading }: { onSend: (text: string) => void; isLo
           <div className="input-toolbar">
             <div className="toolbar-right">
               <button className={"send-btn" + (animating ? " disabled" : "")} title="发送" onClick={vanishAndSubmit} disabled={animating}>
-                <svg width="20" height="20" viewBox="-35 0 1063 1024" fill="currentColor" style={{ transform: "translate(-2px, 0.5px)" }}>
-                  <path d="M313.615229 601.21217l-1.969202-1.772282 344.059103-287.424833-457.879022 184.671834L12.996738 329.777264a39.384055 39.384055 0 0 1 16.226231-67.267966l978.693764-261.116284a39.384055 39.384055 0 0 1 47.969779 48.836228l-260.722443 909.29906a39.384055 39.384055 0 0 1-64.274778 18.392354l-253.160705-228.585055-164.113357 164.073973v-312.197404z" />
-                </svg>
+                <img
+                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABR0lEQVR4AdRUQRLCIAy0vsy+rO3LWl9WdzMhJTQw4IwHHQKBbHYTRJ+PH3/+Q+A8zxctuoyvOiCZ2o71BPFOow9b4dvoFkCiVIlVyMDA9YW1HAswdt4UIBDGKkmWzJJL5mxvmFAApKw2J7SEjKTlHinoBALihKutMwIbzI1pmmIBoFh1b7VzToTccFgHqN59+yH6OhRyzVmuY/FcRyaAkLUFvzVa5MxzPCag7Tp1ogvbiKtULlDGxdHJBLhHcIVN8GtCfOP8nsprQYqMW54TEAgmiORCrmWEW4+gxD5CAZDIUCE+RZqctSbgxwQSmSbeklNc19v18LzZAQGZhQRZPCygW0C7yPice9Ti3QJKF1aJ2BsWjlGB6JpYffVfYEhAr6EUKfeukyEBZkKE1fLZimFfuzbC278DQQQTSZMFYXc03IHL7th8AAAA///F8qI3AAAABklEQVQDAAoSfzE/BJkXAAAAAElFTkSuQmCC"
+                  alt="发送"
+                  width={20}
+                  height={20}
+                  style={{ display: "block" }}
+                />
               </button>
             </div>
           </div>
@@ -596,7 +748,25 @@ export default function ChatApp() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [view, setView] = useState<'chat' | 'portfolio' | 'resume'>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // 自动播报开关:开启时 AI 回复完成后自动朗读最后一条(右上角喇叭控制,状态持久化)
+  const [autoSpeak, setAutoSpeak] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      return localStorage.getItem("chat-auto-speak") !== "false";
+    } catch {
+      return true;
+    }
+  });
   const currentSessionIdRef = useRef<string | null>(null);
+
+  const speech = useSpeech();
+  // 当前正在播放朗读的消息 id(音频播完或停止时复位,用于各消息按钮显示播放状态)
+  const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
+
+  // 朗读会话结束(音频播完/被停止)时,复位消息按钮的播放状态
+  useEffect(() => {
+    if (!speech.isSpeaking) setSpeakingMsgId(null);
+  }, [speech.isSpeaking]);
 
   const { messages, setMessages, sendMessage, status, error, stop } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
@@ -616,6 +786,14 @@ export default function ChatApp() {
           return updated;
         });
       }
+      // 自动播报:回复完成后朗读最后一条助手消息(右上角喇叭可关闭)
+      if (autoSpeakRef.current) {
+        const lastAssistant = [...newMessages].reverse().find(m => m.role === "assistant");
+        if (lastAssistant) {
+          const text = getMessageText(lastAssistant);
+          if (stripMarkdown(text)) speakMessage(lastAssistant.id, text);
+        }
+      }
     },
     onError: (err) => {
       console.error('Chat error:', err);
@@ -628,6 +806,19 @@ export default function ChatApp() {
   useEffect(() => {
     currentSessionIdRef.current = currentSessionId;
   }, [currentSessionId]);
+
+  // 供 onFinish 等闭包读取最新的自动播报开关
+  const autoSpeakRef = useRef(autoSpeak);
+  useEffect(() => {
+    autoSpeakRef.current = autoSpeak;
+  }, [autoSpeak]);
+
+  // 自动播报开关持久化
+  useEffect(() => {
+    try {
+      localStorage.setItem("chat-auto-speak", autoSpeak ? "true" : "false");
+    } catch {}
+  }, [autoSpeak]);
 
   // 从 localStorage 恢复历史会话
   useEffect(() => {
@@ -702,6 +893,63 @@ export default function ChatApp() {
     }
   }, []);
 
+  // 从首页引导卡跳转而来：intro=listen 时新建会话并插入自我介绍（历史会话保留在侧栏）
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      const intro = params.get("intro");
+      if (intro !== "listen") return;
+      window.history.replaceState(null, "", "/chat");
+      // 语音播报入口进入时:右上角自动播报默认开启(即使上次手动关闭过)
+      setAutoSpeak(true);
+      // 尊重用户明确意图：即使浏览器有历史会话，也新建会话承载自我介绍
+      // 避免旧逻辑的 `prev.length>0` 守卫把自助讲解静默拦掉导致无声音
+      const introMsg: UIMessage = {
+        id: `intro-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        role: "assistant",
+        parts: [{ type: "text", text: INTRO_SCRIPT }],
+      };
+      createSession("自助讲解");
+      setMessages([introMsg]);
+      speakMessage(introMsg.id, INTRO_SCRIPT);
+    }, 150);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 主动开场：直接进入 /chat(无参数、无历史)时插入短问候;音频已解锁才自动朗读
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("intro") === "listen") return; // intro=listen 由上面逻辑负责
+      let inserted = false;
+      let insertedMsgId: string | null = null;
+      setMessages((prev) => {
+        if (prev.length > 0) return prev; // 已恢复历史会话则不打扰
+        inserted = true;
+        const msg: UIMessage = {
+          id: `opening-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          role: "assistant",
+          parts: [{ type: "text", text: OPENING_SCRIPT }],
+        };
+        insertedMsgId = msg.id;
+        return [...prev, msg];
+      });
+      if (inserted) {
+        // 直接进入无用户手势预热 AudioContext,通常为 suspended;仅就绪时自动朗读
+        try {
+          if (getSharedAudioContext().state === "running" && insertedMsgId) {
+            speakMessage(insertedMsgId, OPENING_SCRIPT);
+          }
+        } catch {
+          /* 忽略 */
+        }
+      }
+    }, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function createSession(firstMsg: string): string {
     const id = Date.now().toString();
     const title = firstMsg.length > 22 ? firstMsg.slice(0, 22) + '...' : firstMsg;
@@ -710,8 +958,43 @@ export default function ChatApp() {
     return id;
   }
 
+  /** 朗读一条完整消息:记录正在播放的消息 id,先过滤 markdown 标记,再逐句推送 TTS */
+  function speakMessage(msgId: string, text: string) {
+    setSpeakingMsgId(msgId);
+    speakText(speech, text);
+  }
+
+  function stopSpeaking() {
+    speech.stop();
+    setSpeakingMsgId(null);
+  }
+
+  /** 每条回复下的播放按钮:正在播这条则停止,否则播放这条(自动切走当前朗读) */
+  function handleSpeakMessage(msg: UIMessage) {
+    if (speakingMsgId === msg.id) stopSpeaking();
+    else speakMessage(msg.id, getMessageText(msg));
+  }
+
+  function toggleAutoSpeak() {
+    const next = !autoSpeak;
+    setAutoSpeak(next);
+    if (next) {
+      // 开启时在用户手势内提前解锁音频,确保回复自动播报不被浏览器静音
+      speech.warmup();
+    } else {
+      // 关闭时立即停止当前播报,消息按钮复位为「朗读」
+      speech.stop();
+      setSpeakingMsgId(null);
+    }
+  }
+
   function onSend(text: string) {
     if (!text.trim() || isLoading) return;
+
+    // 插话打断:立刻停止当前朗读,关闭 TTS 连接
+    speech.stop();
+    // 自动播报依赖:在发送手势内提前解锁 AudioContext(自动播放策略)
+    if (autoSpeakRef.current) speech.warmup();
 
     // Create or use existing session
     let sid = currentSessionId;
@@ -735,6 +1018,7 @@ export default function ChatApp() {
       ));
     }
     if (isLoading) stop();
+    speech.stop();
     setCurrentSessionId(null);
     setMessages([]);
     setView('chat');
@@ -749,6 +1033,7 @@ export default function ChatApp() {
       ));
     }
     if (isLoading) stop();
+    speech.stop();
 
     setCurrentSessionId(id);
     const target = sessions.find(s => s.id === id);
@@ -767,6 +1052,7 @@ export default function ChatApp() {
         onNavigate={(v: string) => {
           setView(v as 'chat' | 'portfolio' | 'resume');
           if (v !== 'chat') {
+            speech.stop();
             setCurrentSessionId(null);
             setMessages([]);
           }
@@ -781,7 +1067,17 @@ export default function ChatApp() {
         onClick={() => setSidebarOpen(false)}
       />
       {view === 'chat' ? (
-        <MainContent messages={messages} isLoading={isLoading} onSend={onSend} error={error} onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
+        <MainContent
+          messages={messages}
+          isLoading={isLoading}
+          onSend={onSend}
+          error={error}
+          onToggleSidebar={() => setSidebarOpen(prev => !prev)}
+          onSpeakMessage={handleSpeakMessage}
+          speakingMsgId={speakingMsgId}
+          autoSpeak={autoSpeak}
+          onToggleAutoSpeak={toggleAutoSpeak}
+        />
       ) : view === 'portfolio' ? (
         <div className="flex-1 flex flex-col overflow-hidden min-h-0" style={{ background: "var(--dbx-bg-base)" }}>
           <div className="main-header">

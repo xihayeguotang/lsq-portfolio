@@ -1,5 +1,5 @@
 import { streamText, convertToModelMessages, stepCountIs } from "ai";
-import { deepseek } from "@ai-sdk/deepseek";
+import { deepseek, type DeepSeekLanguageModelOptions } from "@ai-sdk/deepseek";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
 import { chatTools } from "@/lib/chat-tools";
 
@@ -34,12 +34,19 @@ export async function POST(request: Request) {
     const modelMessages = await convertToModelMessages(normalizedMessages as Parameters<typeof convertToModelMessages>[0]);
 
     const result = streamText({
-      model: deepseek("deepseek-chat"),
+      model: deepseek("deepseek-reasoner"),
       system: SYSTEM_PROMPT,
       messages: modelMessages,
       tools: chatTools,
       stopWhen: stepCountIs(5),
-      temperature: 0.7,
+      temperature: 0.5,
+      maxOutputTokens: 8192, // 防 reasoner 推理 token 挤占回答预算导致截断
+      providerOptions: {
+        deepseek: {
+          thinking: { type: "enabled" },
+          reasoningEffort: "medium",
+        } satisfies DeepSeekLanguageModelOptions,
+      },
     });
 
     return result.toUIMessageStreamResponse();
